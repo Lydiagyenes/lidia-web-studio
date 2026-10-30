@@ -332,15 +332,15 @@
 
       <div class="card">
         <!--
-          Az űrlap a FormSubmit.co ingyenes szolgáltatásán keresztül küld e-mailt.
-          FONTOS: az első beküldés után a FormSubmit egy aktiváló e-mailt küld a lenti címre –
-          azt egyszer meg kell erősíteni, utána minden kitöltés automatikusan megérkezik.
+          Az űrlap a Web3Forms (web3forms.com) ingyenes szolgáltatásán keresztül küld e-mailt.
+          Az access_key értékét a web3forms.com-on kapod meg (a gyenes.lidia22@gmail.com címre küldik).
+          A kitöltések erre a címre érkeznek.
         -->
-        <form id="contact-form" action="https://formsubmit.co/gyenes.lidia22@gmail.com" method="POST">
-          <input type="hidden" name="_subject" value="Új érdeklődés – Lídia Web Studio">
-          <input type="hidden" name="_template" value="table">
-          <input type="hidden" name="_captcha" value="false">
-          <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off">
+        <form id="contact-form" action="https://api.web3forms.com/submit" method="POST">
+          <input type="hidden" name="access_key" value="f8e65129-8029-4310-8348-f7d2f6f712f3">
+          <input type="hidden" name="subject" value="Új érdeklődés – Lídia Web Studio">
+          <input type="hidden" name="from_name" value="Lídia Web Studio weboldal">
+          <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off">
 
           <div class="row">
             <label>Név *<input type="text" name="Név" required autocomplete="name"></label>
@@ -498,19 +498,23 @@ document.getElementById("contact-form").addEventListener("submit", async e => {
   const form = e.target, btn = document.getElementById("submit-btn"), msg = document.getElementById("form-msg");
   btn.disabled = true; btn.textContent = "Küldés…"; msg.className = "form-msg";
   try {
-    const res = await fetch(form.action.replace("formsubmit.co/", "formsubmit.co/ajax/"), {
+    const fd = new FormData(form);
+    fd.set("replyto", fd.get("email") || "");
+    const res = await fetch(form.action, {
       method: "POST",
       headers: { "Accept": "application/json" },
-      body: new FormData(form)
+      body: fd
     });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok || data.success === "false" || data.success === false) throw new Error();
+    if (!res.ok || !data.success) throw new Error(data.message || ("HTTP " + res.status));
     form.reset();
     msg.className = "form-msg ok";
     msg.textContent = "Köszönöm az üzenetet! Hamarosan jelentkezem.";
-  } catch {
+  } catch (err) {
+    console.error("Űrlap hiba:", err);
     msg.className = "form-msg err";
-    msg.innerHTML = 'Hiba történt a küldés közben. Kérlek, próbáld újra, vagy írj közvetlenül: <a href="mailto:gyenes.lidia22@gmail.com" style="text-decoration:underline">gyenes.lidia22@gmail.com</a>';
+    msg.innerHTML = 'Hiba történt a küldés közben. Kérlek, próbáld újra, vagy írj közvetlenül: <a href="mailto:gyenes.lidia22@gmail.com" style="text-decoration:underline">gyenes.lidia22@gmail.com</a>'
+      + '<br><small style="opacity:.7">Részletek: ' + esc(err.message || err) + '</small>';
   } finally {
     btn.disabled = false; btn.textContent = "Üzenet küldése →";
   }
