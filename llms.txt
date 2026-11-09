@@ -5,6 +5,7 @@
 ## Szolgáltatások
 - Bemutatkozó és landing oldalak: 100 000 Ft-tól, jellemzően néhány nap alatt.
 - Egyedi webes alkalmazások, CRM, foglalási rendszerek: 300 000 Ft-tól, jellemzően 2–4 hét.
+- Kész sablon oldalak: 70 000 Ft a saját szövegek és adatok beállításával (+ domain és tárhely); egyedi dizájnmódosítás esetén az ár emelkedhet. Sablonok: https://lydigital.hu/#sablonok
 - Átadás után: betanítás, 14 napos díjmentes hibajavítás, opcionális havidíjas karbantartás, domain- és tárhelybeállítás.
 
 ## Referenciák

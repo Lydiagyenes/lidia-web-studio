@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+# A sablon-demók kitalált adatokat tartalmaznak, ezért nem indexeljük őket
+Disallow: /sablonok/
 
 Sitemap: https://lydigital.hu/sitemap.xml
