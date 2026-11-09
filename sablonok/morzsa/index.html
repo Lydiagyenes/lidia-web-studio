@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Betöltés…</title>
+<meta name="description" content="">
+
+<script>
+/* ==========================================================================
+   ÜGYFÉLADATOK – CSAK EZT A RÉSZT KELL SZERKESZTENI
+   --------------------------------------------------------------------------
+   Minden szöveg, szín, menü, nyitvatartás és elérhetőség innen töltődik be.
+   Ha egy szekcióra nincs szükség, állítsd a "mutat" értékét false-ra.
+   FONTOS: a "velemenyek" itt mintaszövegek – élesítés előtt cseréld le
+   valódi vendégvéleményekre, vagy kapcsold ki a szekciót.
+   ========================================================================== */
+const CONFIG = {
+  // DEMÓ mód: true = felül megjelenik a "Lydigital mintaoldal" sáv. Ügyfélnél: false!
+  demo: true,
+
+  // --- Alapadatok ---
+  nev: "Morzsa",
+  alcim: "Kávézó & Cukrászda",
+  domain: "https://pelda.hu/",
+  szin: "#c8553d",                       // fő szín (terrakotta)
+  szin2: "#f2b134",                      // második szín (mustár)
+  seoCim: "Morzsa Kávézó & Cukrászda – specialty kávé és házi sütemények",
+  seoLeiras: "Specialty kávé, házi sütemények, reggeli és egyedi torták a környék legbarátságosabb kávézójában. Nézd meg a menüt és a nyitvatartást!",
+  tipus: "CafeOrCoffeeShop",             // SEO: CafeOrCoffeeShop | Bakery | Restaurant
+
+  // --- Nyitórész ---
+  hero: {
+    cim: "Itt a kávé *mindig* friss, a süti pedig házi.",   // *csillagok közé* = kiemelt szó
+    szoveg: "Kis kávézó a sarkon, ahol reggel friss kalács, délután pedig egy szelet torta vár – és mindenki név szerint köszön.",
+    gomb: "Menü",
+    gomb2: "Asztalfoglalás",
+    matricak: ["Házi sütik", "Specialty kávé", "Kutyabarát"]
+  },
+
+  // --- Menü (a tételek a tálcára "ugranak") ---
+  menu: {
+    cim: "Mit kérsz ma?",
+    alcim: "Kattints a tételekre, és pakold meg a tálcád – megmutatjuk, mennyi lesz.",
+    kategoriak: [
+      { nev: "Kávék", tetelek: [
+        { nev: "Espresso", leiras: "Világos pörkölésű, gyümölcsös", ar: 690, ikon: "☕" },
+        { nev: "Flat white", leiras: "Dupla ristretto, selymes tej", ar: 1190, ikon: "☕" },
+        { nev: "Cappuccino", leiras: "Klasszikus, kakaóval kérésre", ar: 990, ikon: "☕" },
+        { nev: "Jeges latte", leiras: "Házi vaníliasziruppal", ar: 1290, ikon: "🧋" }
+      ]},
+      { nev: "Sütemények", tetelek: [
+        { nev: "Vajas croissant", leiras: "Minden reggel frissen sütve", ar: 790, ikon: "🥐" },
+        { nev: "Fahéjas csiga", leiras: "Krémsajtos mázzal", ar: 890, ikon: "🥮" },
+        { nev: "Málnás sajttorta", leiras: "Kekszes alappal", ar: 1390, ikon: "🍰" },
+        { nev: "Csokis keksz", leiras: "Tengeri sóval", ar: 590, ikon: "🍪" }
+      ]},
+      { nev: "Reggeli", tetelek: [
+        { nev: "Avokádós pirítós", leiras: "Kovászos kenyéren, buggyantott tojással", ar: 2490, ikon: "🥑" },
+        { nev: "Granola tál", leiras: "Joghurttal, friss gyümölccsel", ar: 1890, ikon: "🥣" },
+        { nev: "Friss narancslé", leiras: "Helyben facsart", ar: 990, ikon: "🍊" }
+      ]}
+    ],
+    penznem: "Ft"
+  },
+
+  // --- Napi ajánlat (hétfőtől vasárnapig; üres = nem jelenik meg aznap) ---
+  napiAjanlat: {
+    mutat: true,
+    cim: "A mai ajánlat",
+    napok: [
+      "Hétfői lendület: dupla espresso + croissant 1 290 Ft",
+      "Kedden minden sajttorta mellé jár egy filteres kávé",
+      "Szerdai csiga-nap: 2 fahéjas csiga 1 490 Ft",
+      "Csütörtökön a jeges latte 20% kedvezménnyel",
+      "Pénteki tortaszelet + cappuccino 2 190 Ft",
+      "Hétvégi brunch: avokádós pirítós + narancslé 3 190 Ft",
+      "Vasárnapi családi tál: 4 süti + 2 kakaó 4 490 Ft"
+    ]
+  },
+
+  // --- Hangulat / galéria (polaroidok) ---
+  galeria: {
+    mutat: true,
+    cim: "Egy kis hangulat",
+    kepek: [
+      { kep: "", felirat: "Reggeli napfény az ablaknál", ikon: "☀️" },
+      { kep: "", felirat: "Friss kalács, pont most", ikon: "🥐" },
+      { kep: "", felirat: "Latte art minden reggel", ikon: "☕" },
+      { kep: "", felirat: "Szombati tortavásár", ikon: "🎂" }
+    ]
+  },
+
+  // --- Nyitvatartás (hétfőtől vasárnapig; null = zárva) ---
+  nyitvatartas: [
+    ["07:30", "18:00"], ["07:30", "18:00"], ["07:30", "18:00"], ["07:30", "18:00"],
+    ["07:30", "20:00"], ["08:00", "20:00"], ["09:00", "15:00"]
+  ],
+
+  // --- Vélemények (MINTA – cseréld valódira!) ---
+  velemenyek: {
+    mutat: true,
+    cim: "Ezt mondják rólunk",
+    elemek: [
+      { szoveg: "Mintaszöveg: A legjobb flat white a kerületben, és a csigáért át is mennék a városon.", nev: "Minta Vendég" },
+      { szoveg: "Mintaszöveg: Olyan, mintha a nagymamád kávézót nyitott volna – csak jobb a kávé.", nev: "Minta Vendég" },
+      { szoveg: "Mintaszöveg: A születésnapi torta gyönyörű lett és isteni finom!", nev: "Minta Vendég" }
+    ]
+  },
+
+  // --- Kapcsolat / foglalás ---
+  kapcsolat: {
+    cim: "Foglalj asztalt vagy rendelj tortát",
+    szoveg: "Asztalfoglalás, egyedi torta vagy kisebb rendezvény – írj, és hamarosan visszajelzünk.",
+    telefon: "+36 30 123 4567",
+    email: "hello@pelda.hu",
+    cim2: "1137 Budapest, Minta utca 12.",
+    terkepLink: "",
+    instagram: "",
+    keresTipusok: ["Asztalfoglalás", "Tortarendelés", "Rendezvény / csoport", "Egyéb"],
+    urlapTargy: "Új foglalás / rendelés a weboldalról",
+    web3formsKulcs: "f8e65129-8029-4310-8348-f7d2f6f712f3"   // ügyfélnél: az ügyfél saját kulcsa
+  }
+};
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #c8553d;
+    --mustard: #f2b134;
+    --bg: #fbf3e6;
+    --paper: #fffaf1;
+    --ink: #3a2418;
+    --muted: #7d6656;
+    --line: #ecdcc4;
+    --green: #4f8a5b;
+    --serif: "DM Serif Display", Georgia, serif;
+    --sans: "Outfit", system-ui, sans-serif;
+    --hand: "Caveat", cursive;
+    --max: 1160px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--ink); font: 400 17px/1.65 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  a { color: inherit; }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 400; line-height: 1.05; }
+  em { font-style: italic; color: var(--accent); }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; position: relative; }
+  section { padding: 110px 0; position: relative; }
+  .hand { font-family: var(--hand); color: var(--accent); font-size: 26px; display: inline-block; transform: rotate(-3deg); }
+  .head { text-align: center; max-width: 640px; margin: 0 auto 56px; }
+  .head h2 { font-size: clamp(42px, 5.6vw, 72px); margin: 4px 0 12px; }
+  .head p { color: var(--muted); }
+  .squiggle { display: block; width: 120px; height: 14px; margin: 14px auto 0; }
+  .squiggle path { fill: none; stroke: var(--mustard); stroke-width: 4; stroke-linecap: round; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px; padding: 14px 26px; border-radius: 999px; border: 2px solid var(--ink);
+    background: var(--accent); color: #fff; font: 600 15px var(--sans); text-decoration: none; cursor: pointer;
+    box-shadow: 4px 4px 0 var(--ink); transition: transform .15s, box-shadow .15s;
+  }
+  .btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+  .btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+  .btn.alt { background: var(--paper); color: var(--ink); }
+
+  .demo-bar { background: var(--ink); color: #fff; font-size: 13px; text-align: center; padding: 9px 16px; }
+  .demo-bar a { color: var(--mustard); font-weight: 600; margin-left: 8px; white-space: nowrap; }
+  .demo-bar[hidden] { display: none; }
+
+  /* --- Header --- */
+  header { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 2px dashed var(--line); }
+  .nav { height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .brand { text-decoration: none; display: flex; align-items: center; gap: 10px; }
+  .brand .cup { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); display: grid; place-items: center; color: #fff; font-size: 20px; border: 2px solid var(--ink); }
+  .brand strong { font: 400 28px var(--serif); line-height: 1; }
+  .brand span { display: block; font-size: 12px; color: var(--muted); letter-spacing: .06em; }
+  .links { display: flex; gap: 26px; align-items: center; font-size: 15px; font-weight: 500; }
+  .links a { text-decoration: none; }
+  .links a:not(.btn):hover { color: var(--accent); }
+  .links .btn { padding: 9px 18px; font-size: 14px; box-shadow: 3px 3px 0 var(--ink); }
+  .status { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; background: var(--paper); border: 2px solid var(--ink); font-size: 13px; font-weight: 500; white-space: nowrap; }
+  .status i { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 var(--green); animation: ping 2s infinite; }
+  .status.closed i { background: #b5483a; animation: none; }
+  @keyframes ping { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--green) 60%, transparent); } 100% { box-shadow: 0 0 0 10px transparent; } }
+  .burger { display: none; background: none; border: 0; font-size: 26px; cursor: pointer; color: var(--ink); }
+
+  /* --- Hero --- */
+  .hero { padding: 60px 0 100px; }
+  .hero-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 48px; align-items: center; }
+  .hero h1 { font-size: clamp(48px, 7vw, 96px); margin: 8px 0 24px; }
+  .hero h1 em { position: relative; white-space: nowrap; }
+  .hero h1 em svg { position: absolute; left: -4%; bottom: -.12em; width: 108%; height: .3em; }
+  .hero h1 em svg path { fill: none; stroke: var(--mustard); stroke-width: 6; stroke-linecap: round; stroke-dasharray: 400; stroke-dashoffset: 400; animation: draw 1.2s .6s ease forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .hero p { color: var(--muted); font-size: 19px; max-width: 480px; margin-bottom: 32px; }
+  .ctas { display: flex; gap: 14px; flex-wrap: wrap; }
+
+  .cup-scene { position: relative; aspect-ratio: 1; width: min(440px, 100%); justify-self: center; }
+  .cup-scene .plate { position: absolute; left: 8%; right: 8%; bottom: 12%; height: 14%; border-radius: 50%; background: var(--paper); border: 3px solid var(--ink); }
+  .cup-scene svg.cup { position: absolute; left: 18%; width: 64%; bottom: 17%; overflow: visible; }
+  .steam path { fill: none; stroke: var(--muted); stroke-width: 5; stroke-linecap: round; opacity: 0; animation: steam 3.2s ease-in-out infinite; }
+  .steam path:nth-child(2) { animation-delay: 1s; } .steam path:nth-child(3) { animation-delay: 2s; }
+  @keyframes steam { 0% { opacity: 0; transform: translateY(20px); } 30% { opacity: .55; } 100% { opacity: 0; transform: translateY(-40px); } }
+  .sticker {
+    position: absolute; padding: 10px 18px; border-radius: 999px; background: var(--mustard); border: 2px solid var(--ink); font-weight: 600; font-size: 15px;
+    box-shadow: 3px 3px 0 var(--ink); animation: bob 4s ease-in-out infinite; white-space: nowrap;
+  }
+  .sticker.s1 { top: 8%; left: -4%; transform: rotate(-8deg); }
+  .sticker.s2 { top: 30%; right: -6%; background: var(--paper); animation-delay: 1.2s; }
+  .sticker.s3 { bottom: 2%; left: 4%; background: color-mix(in srgb, var(--accent) 25%, var(--paper)); animation-delay: 2.1s; }
+  @keyframes bob { 0%, 100% { translate: 0 0; rotate: -4deg; } 50% { translate: 0 -10px; rotate: 3deg; } }
+
+  /* --- Menü + tálca --- */
+  .menu-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 40px; align-items: start; }
+  .tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
+  .tabs button { padding: 10px 20px; border-radius: 999px; border: 2px solid var(--ink); background: var(--paper); font: 600 15px var(--sans); cursor: pointer; color: var(--ink); transition: background .2s, color .2s; }
+  .tabs button.on { background: var(--ink); color: var(--bg); }
+  .items { display: grid; gap: 12px; }
+  .item {
+    display: grid; grid-template-columns: 52px 1fr auto 44px; gap: 14px; align-items: center; padding: 14px 16px; background: var(--paper);
+    border: 2px solid var(--ink); border-radius: 20px; cursor: pointer; text-align: left; font: inherit; color: inherit; transition: transform .15s, box-shadow .15s;
+    animation: pop .45s cubic-bezier(.3,1.5,.5,1) backwards;
+  }
+  .item:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--ink); }
+  .item .ico { font-size: 30px; width: 52px; height: 52px; display: grid; place-items: center; background: var(--bg); border-radius: 16px; }
+  .item strong { display: block; font-weight: 600; }
+  .item small { color: var(--muted); font-size: 14px; }
+  .item .pr { font: 400 22px var(--serif); white-space: nowrap; }
+  .item .plus { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 22px; border: 2px solid var(--ink); }
+  @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.96); } to { opacity: 1; transform: none; } }
+
+  .tray-box { position: sticky; top: 100px; }
+  .tray {
+    background: color-mix(in srgb, var(--accent) 85%, #000); border: 3px solid var(--ink); border-radius: 36px; padding: 18px; box-shadow: 6px 6px 0 var(--ink);
+  }
+  .tray-in { background: color-mix(in srgb, var(--accent) 70%, #fff); border-radius: 26px; min-height: 230px; padding: 18px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 6px; position: relative; }
+  .tray-in .empty { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: #fff; font: 600 26px var(--hand); padding: 20px; opacity: .9; }
+  .tray-in .t { font-size: 40px; line-height: 1; animation: drop .6s cubic-bezier(.3,1.6,.5,1); cursor: pointer; filter: drop-shadow(0 4px 2px rgba(0,0,0,.18)); }
+  .tray-in .t:hover { transform: scale(1.1) rotate(-6deg); }
+  @keyframes drop { from { transform: translateY(-140px) rotate(-30deg); opacity: 0; } 60% { opacity: 1; } to { transform: none; } }
+  .receipt { margin-top: 18px; background: var(--paper); border: 2px solid var(--ink); border-radius: 20px; padding: 18px 20px; }
+  .receipt .row { display: flex; justify-content: space-between; font-size: 15px; color: var(--muted); padding: 2px 0; }
+  .receipt .total { display: flex; justify-content: space-between; align-items: baseline; border-top: 2px dashed var(--line); margin-top: 10px; padding-top: 10px; }
+  .receipt .total b { font: 400 34px var(--serif); color: var(--ink); }
+  .receipt .rnote { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .receipt button { margin-top: 10px; background: none; border: 0; color: var(--accent); font: 600 14px var(--sans); cursor: pointer; text-decoration: underline; }
+
+  /* --- Napi ajánlat --- */
+  .daily { display: flex; justify-content: center; padding: 20px 0 0; }
+  .daily-card {
+    position: relative; max-width: 720px; width: 100%; background: var(--mustard); border: 3px solid var(--ink); border-radius: 28px; padding: 34px 40px; box-shadow: 6px 6px 0 var(--ink);
+    transform: rotate(-1.5deg); text-align: center;
+  }
+  .daily-card .hand { color: var(--ink); font-size: 30px; }
+  .daily-card p { font: 400 clamp(24px, 3vw, 34px)/1.25 var(--serif); margin-top: 6px; }
+  .daily-card .day { position: absolute; top: -18px; right: 28px; background: var(--paper); border: 2px solid var(--ink); border-radius: 999px; padding: 4px 14px; font-weight: 600; font-size: 14px; transform: rotate(4deg); }
+
+  /* --- Polaroidok --- */
+  .polas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; }
+  .pola { background: #fff; padding: 12px 12px 18px; border: 2px solid var(--ink); box-shadow: 4px 4px 0 var(--ink); transition: transform .35s cubic-bezier(.3,1.5,.5,1); }
+  .pola:nth-child(odd) { transform: rotate(-3deg); } .pola:nth-child(even) { transform: rotate(2.5deg) translateY(14px); }
+  .pola:hover { transform: rotate(0) scale(1.05); z-index: 2; }
+  .pola .img { aspect-ratio: 1; display: grid; place-items: center; font-size: 64px; overflow: hidden; }
+  .pola .img img { width: 100%; height: 100%; object-fit: cover; }
+  .pola figcaption { font: 600 22px var(--hand); text-align: center; margin-top: 10px; line-height: 1.1; }
+  .pola:nth-child(4n+1) .img { background: linear-gradient(135deg, #f7d9a8, #f2b134); }
+  .pola:nth-child(4n+2) .img { background: linear-gradient(135deg, #f3c2b3, #c8553d); }
+  .pola:nth-child(4n+3) .img { background: linear-gradient(135deg, #e9dcc6, #a47551); }
+  .pola:nth-child(4n+4) .img { background: linear-gradient(135deg, #cfe2c8, #4f8a5b); }
+
+  /* --- Nyitvatartás --- */
+  .visit { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: stretch; }
+  .card { background: var(--paper); border: 2px solid var(--ink); border-radius: 28px; padding: 34px; box-shadow: 5px 5px 0 var(--ink); }
+  .card h3 { font-size: 34px; margin-bottom: 16px; }
+  .hours { list-style: none; }
+  .hours li { display: flex; justify-content: space-between; padding: 10px 14px; border-radius: 12px; }
+  .hours li.today { background: var(--mustard); font-weight: 600; }
+  .hours li.today::after { content: "ma"; font: 600 20px var(--hand); margin-left: 8px; }
+  .hours li span:last-child { margin-left: auto; }
+  .big-status { font: 400 30px/1.2 var(--serif); margin-bottom: 18px; }
+  .big-status small { display: block; font: 400 16px var(--sans); color: var(--muted); margin-top: 6px; }
+  .addr { margin: 18px 0; }
+  .addr a { text-decoration: none; border-bottom: 2px solid var(--mustard); }
+
+  /* --- Vélemények (cetlik) --- */
+  .notes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+  .note { background: #fff6c9; padding: 28px 24px 22px; border: 2px solid var(--ink); position: relative; box-shadow: 4px 4px 0 var(--ink); }
+  .note:nth-child(2) { background: #ffe1d6; transform: rotate(1.8deg); } .note:nth-child(1) { transform: rotate(-1.6deg); } .note:nth-child(3) { background: #dff0d9; transform: rotate(-.8deg); }
+  .note::before { content: ""; position: absolute; top: -12px; left: 50%; width: 90px; height: 24px; transform: translateX(-50%) rotate(-3deg); background: color-mix(in srgb, var(--mustard) 55%, transparent); border: 1px solid #0001; }
+  .note p { font: 600 25px/1.2 var(--hand); }
+  .note cite { display: block; margin-top: 12px; font-style: normal; font-size: 14px; color: var(--muted); }
+
+  /* --- Kapcsolat --- */
+  .contact-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 48px; align-items: start; }
+  .contact h2 { font-size: clamp(38px, 4.6vw, 58px); margin: 6px 0 14px; }
+  .contact .lead { color: var(--muted); margin-bottom: 24px; }
+  .info { list-style: none; display: grid; gap: 10px; }
+  .info b { font-weight: 600; margin-right: 6px; }
+  .info a { text-decoration: none; border-bottom: 2px solid var(--mustard); }
+  form.card { display: grid; gap: 16px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  label { display: grid; gap: 6px; font-size: 14px; font-weight: 600; }
+  input:not([type=checkbox]), select, textarea {
+    width: 100%; padding: 13px 16px; border-radius: 14px; border: 2px solid var(--ink); background: #fff; color: var(--ink); font: 400 16px var(--sans); outline: none; transition: box-shadow .15s;
+  }
+  input:focus, select:focus, textarea:focus { box-shadow: 3px 3px 0 var(--accent); }
+  textarea { min-height: 110px; resize: vertical; }
+  .consent { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; color: var(--muted); }
+  .consent input { accent-color: var(--accent); margin-top: 4px; }
+  .hp { position: absolute; left: -9999px; }
+  .msg { display: none; padding: 12px 16px; border-radius: 14px; border: 2px solid var(--ink); font-size: 15px; }
+  .msg.ok { display: block; background: #dff0d9; } .msg.err { display: block; background: #ffe1d6; }
+
+  footer { padding: 30px 0 40px; font-size: 14px; color: var(--muted); border-top: 2px dashed var(--line); }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  footer a { text-decoration: none; }
+  footer .credit strong { color: var(--ink); font-weight: 600; transition: color .2s; }
+  footer .credit:hover strong { color: var(--accent); }
+
+  .rv { opacity: 0; transform: translateY(26px); transition: opacity .8s, transform .8s cubic-bezier(.3,1.3,.5,1); }
+  .rv.in { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .rv { opacity: 1; transform: none; }
+    .hero h1 em svg path { stroke-dashoffset: 0; }
+  }
+  @media (max-width: 960px) {
+    section { padding: 80px 0; }
+    .hero-grid, .menu-grid, .visit, .contact-grid { grid-template-columns: 1fr; }
+    .cup-scene { width: min(340px, 86%); }
+    .polas { grid-template-columns: 1fr 1fr; }
+    .notes { grid-template-columns: 1fr; }
+    .tray-box { position: static; }
+    .nav .status { display: none; }
+  }
+  @media (max-width: 640px) {
+    .wrap { padding: 0 16px; }
+    .burger { display: block; }
+    .links { display: none; position: absolute; top: 76px; left: 0; right: 0; background: var(--bg); flex-direction: column; align-items: flex-start; padding: 24px 16px; gap: 18px; border-bottom: 2px dashed var(--line); }
+    .links.open { display: flex; }
+    .row2 { grid-template-columns: 1fr; }
+    .item { grid-template-columns: 44px 1fr auto; }
+    .item .ico { width: 44px; height: 44px; font-size: 24px; }
+    .item .plus { display: none; }
+    .daily-card { padding: 28px 22px; }
+    .card { padding: 24px; }
+    .sticker { font-size: 13px; padding: 8px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-bar" id="demo-bar" hidden>Ez egy <strong>Lydigital</strong> mintaoldal – a kávézó és az adatok kitaláltak. <a href="https://lydigital.hu/#sablonok">Ilyet szeretnék →</a></div>
+
+<header>
+  <div class="wrap nav">
+    <a href="#" class="brand"><span class="cup" aria-hidden="true">☕</span><span><strong id="brand-name"></strong><span id="brand-sub"></span></span></a>
+    <span class="status" id="status-pill"><i></i><span></span></span>
+    <button class="burger" aria-label="Menü" onclick="document.querySelector('.links').classList.toggle('open')">☰</button>
+    <nav class="links" id="links" onclick="if(event.target.tagName==='A')this.classList.remove('open')"></nav>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<footer><div class="wrap"><span id="foot-left"></span><a class="credit" href="https://lydigital.hu/" target="_blank" rel="noopener">Designed by <strong>Lydigital</strong></a><a href="#">Vissza a tetejére ↑</a></div></footer>
+
+<script>
+(function () {
+  const C = CONFIG, K = C.kapcsolat, M = C.menu;
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const on = s => s && s.mutat !== false;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const money = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " " + M.penznem;
+  const NAPOK = ["Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek", "Szombat", "Vasárnap"];
+  const SQUIG = '<svg class="squiggle" viewBox="0 0 120 14" aria-hidden="true"><path d="M3 9 Q 13 1 23 9 T 43 9 T 63 9 T 83 9 T 103 9 T 117 7"/></svg>';
+
+  document.documentElement.style.setProperty("--accent", C.szin);
+  document.documentElement.style.setProperty("--mustard", C.szin2);
+  document.title = C.seoCim;
+  document.querySelector('meta[name="description"]').setAttribute("content", C.seoLeiras);
+  if (C.demo) document.getElementById("demo-bar").hidden = false;
+  document.getElementById("brand-name").textContent = C.nev;
+  document.getElementById("brand-sub").textContent = C.alcim;
+  document.getElementById("foot-left").textContent = "© " + new Date().getFullYear() + " " + C.nev + " " + C.alcim;
+
+  /* --- SEO: strukturált adatok nyitvatartással és menüvel --- */
+  const DAYS_EN = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  const ld = { "@context": "https://schema.org", "@type": C.tipus || "CafeOrCoffeeShop", name: C.nev + " " + C.alcim, url: C.domain, description: C.seoLeiras,
+    telephone: K.telefon, email: K.email, address: { "@type": "PostalAddress", streetAddress: K.cim2, addressCountry: "HU" },
+    openingHoursSpecification: C.nyitvatartas.map((h, i) => h && { "@type": "OpeningHoursSpecification", dayOfWeek: DAYS_EN[i], opens: h[0], closes: h[1] }).filter(Boolean),
+    hasMenu: { "@type": "Menu", hasMenuSection: M.kategoriak.map(k => ({ "@type": "MenuSection", name: k.nev,
+      hasMenuItem: k.tetelek.map(t => ({ "@type": "MenuItem", name: t.nev, description: t.leiras, offers: { "@type": "Offer", price: t.ar, priceCurrency: "HUF" } })) })) } };
+  if (K.instagram) ld.sameAs = [K.instagram];
+  const s = document.createElement("script"); s.type = "application/ld+json"; s.textContent = JSON.stringify(ld); document.head.appendChild(s);
+
+  /* --- Élő nyitvatartás-állapot --- */
+  const toMin = t => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+  function status() {
+    const now = new Date(), d = (now.getDay() + 6) % 7, m = now.getHours() * 60 + now.getMinutes(), h = C.nyitvatartas[d];
+    if (h && m >= toMin(h[0]) && m < toMin(h[1])) {
+      const left = toMin(h[1]) - m, hh = Math.floor(left / 60), mm = left % 60;
+      return { open: true, d, short: "Most nyitva", long: `zárásig ${hh ? hh + " óra " : ""}${mm} perc` };
+    }
+    for (let k = 0; k < 8; k++) {
+      const dd = (d + k) % 7, hx = C.nyitvatartas[dd];
+      if (!hx || (k === 0 && m >= toMin(hx[0]))) continue;
+      const when = k === 0 ? "ma" : k === 1 ? "holnap" : NAPOK[dd].toLowerCase();
+      return { open: false, d, short: "Most zárva", long: `nyitunk ${when} ${hx[0]}-kor` };
+    }
+    return { open: false, d, short: "Most zárva", long: "" };
+  }
+  const st = status();
+  const pill = document.getElementById("status-pill");
+  pill.classList.toggle("closed", !st.open);
+  pill.querySelector("span").textContent = `${st.short} · ${st.long}`;
+
+  const nav = [], html = [];
+  const heroTitle = esc(C.hero.cim).replace(/\*([^*]+)\*/g,
+    '<em>$1<svg viewBox="0 0 200 20" preserveAspectRatio="none" aria-hidden="true"><path d="M3 14 Q 50 2 100 12 T 197 8"/></svg></em>');
+
+  html.push(`
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="rv">
+        <span class="hand">Szia, jó, hogy benéztél!</span>
+        <h1>${heroTitle}</h1>
+        <p>${esc(C.hero.szoveg)}</p>
+        <div class="ctas"><a class="btn" href="#menu">${esc(C.hero.gomb)}</a><a class="btn alt" href="#foglalas">${esc(C.hero.gomb2)}</a></div>
+      </div>
+      <div class="cup-scene rv" aria-hidden="true">
+        <div class="plate"></div>
+        <svg class="cup" viewBox="0 0 260 230">
+          <g class="steam"><path d="M85 60 q -14 -22 0 -40 q 14 -18 0 -40"/><path d="M130 60 q -14 -22 0 -40 q 14 -18 0 -40"/><path d="M175 60 q -14 -22 0 -40 q 14 -18 0 -40"/></g>
+          <path d="M210 110 q 48 0 44 40 q -4 38 -50 34" fill="none" stroke="#3a2418" stroke-width="10"/>
+          <path d="M30 80 h 190 v 70 q 0 70 -95 70 q -95 0 -95 -70 z" fill="var(--accent)" stroke="#3a2418" stroke-width="6"/>
+          <ellipse cx="125" cy="82" rx="92" ry="14" fill="#6b3f2a" stroke="#3a2418" stroke-width="6"/>
+          <path d="M100 82 q 25 -14 50 0 q -25 10 -50 0" fill="#f4e3c9"/>
+          <circle cx="90" cy="150" r="5" fill="#fff8"/><circle cx="160" cy="150" r="5" fill="#fff8"/><path d="M112 168 q 13 10 26 0" fill="none" stroke="#3a2418" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+        ${C.hero.matricak.map((m, i) => `<span class="sticker s${i + 1}">${esc(m)}</span>`).join("")}
+      </div>
+    </div>
+  </section>`);
+
+  const today = on(C.napiAjanlat) ? C.napiAjanlat.napok[st.d] : "";
+  if (today) html.push(`
+  <div class="wrap daily rv"><div class="daily-card"><span class="day">${NAPOK[st.d]}</span><span class="hand">${esc(C.napiAjanlat.cim)}</span><p>${esc(today)}</p></div></div>`);
+
+  nav.push(["menu", "Menü"]);
+  html.push(`
+  <section id="menu">
+    <div class="wrap">
+      <div class="head rv"><span class="hand">a mi menünk</span><h2>${esc(M.cim)}</h2><p>${esc(M.alcim)}</p>${SQUIG}</div>
+      <div class="menu-grid">
+        <div>
+          <div class="tabs" role="tablist">${M.kategoriak.map((k, i) => `<button role="tab" data-tab="${i}" class="${i === 0 ? "on" : ""}">${esc(k.nev)}</button>`).join("")}</div>
+          <div class="items" id="items"></div>
+        </div>
+        <div class="tray-box">
+          <div class="tray"><div class="tray-in" id="tray"><div class="empty">Még üres a tálcád…<br>kattints valamire! ☺</div></div></div>
+          <div class="receipt" id="receipt"></div>
+        </div>
+      </div>
+    </div>
+  </section>`);
+
+  if (on(C.galeria)) html.push(`
+  <section style="padding-top:30px">
+    <div class="wrap">
+      <div class="head rv"><span class="hand">nálunk így telnek a napok</span><h2>${esc(C.galeria.cim)}</h2>${SQUIG}</div>
+      <div class="polas">${C.galeria.kepek.map(g => `<figure class="pola rv"><div class="img">${g.kep ? `<img src="${esc(g.kep)}" alt="${esc(g.felirat)}" loading="lazy">` : esc(g.ikon || "☕")}</div><figcaption>${esc(g.felirat)}</figcaption></figure>`).join("")}</div>
+    </div>
+  </section>`);
+
+  nav.push(["nyitvatartas", "Nyitvatartás"]);
+  html.push(`
+  <section id="nyitvatartas" style="padding-top:40px">
+    <div class="wrap visit">
+      <div class="card rv">
+        <h3>Nyitvatartás</h3>
+        <ul class="hours">${C.nyitvatartas.map((h, i) => `<li class="${i === st.d ? "today" : ""}"><span>${NAPOK[i]}</span><span>${h ? h[0] + "–" + h[1] : "Zárva"}</span></li>`).join("")}</ul>
+      </div>
+      <div class="card rv" style="background:${st.open ? "#dff0d9" : "#ffe1d6"}">
+        <h3>Gyere be!</h3>
+        <div class="big-status">${st.open ? "Épp nyitva vagyunk ☕" : "Most épp zárva vagyunk"}<small>${esc(st.long)}</small></div>
+        <p class="addr">${K.terkepLink ? `<a href="${esc(K.terkepLink)}" target="_blank" rel="noopener">${esc(K.cim2)}</a>` : esc(K.cim2)}</p>
+        <ul class="info">
+          ${K.telefon ? `<li><b>Telefon:</b><a href="tel:${esc(K.telefon.replace(/\s/g, ""))}">${esc(K.telefon)}</a></li>` : ""}
+          ${K.email ? `<li><b>E-mail:</b><a href="mailto:${esc(K.email)}">${esc(K.email)}</a></li>` : ""}
+          ${K.instagram ? `<li><b>Instagram:</b><a href="${esc(K.instagram)}" target="_blank" rel="noopener">kövess minket</a></li>` : ""}
+        </ul>
+      </div>
+    </div>
+  </section>`);
+
+  if (on(C.velemenyek)) html.push(`
+  <section style="padding-top:30px">
+    <div class="wrap">
+      <div class="head rv"><span class="hand">vendégeink üzenik</span><h2>${esc(C.velemenyek.cim)}</h2>${SQUIG}</div>
+      <div class="notes">${C.velemenyek.elemek.map(v => `<figure class="note rv"><p>„${esc(v.szoveg)}”</p><cite>— ${esc(v.nev)}</cite></figure>`).join("")}</div>
+    </div>
+  </section>`);
+
+  nav.push(["foglalas", "Foglalás"]);
+  html.push(`
+  <section class="contact" id="foglalas" style="padding-top:40px">
+    <div class="wrap contact-grid">
+      <div class="rv">
+        <span class="hand">írj nekünk</span>
+        <h2>${esc(K.cim)}</h2>
+        <p class="lead">${esc(K.szoveg)}</p>
+        <ul class="info">
+          ${K.telefon ? `<li><b>Telefon:</b><a href="tel:${esc(K.telefon.replace(/\s/g, ""))}">${esc(K.telefon)}</a></li>` : ""}
+          ${K.cim2 ? `<li><b>Cím:</b>${esc(K.cim2)}</li>` : ""}
+        </ul>
+      </div>
+      <form class="card rv" id="form" action="https://api.web3forms.com/submit" method="POST">
+        <input type="hidden" name="access_key" value="${esc(K.web3formsKulcs)}">
+        <input type="hidden" name="subject" value="${esc(K.urlapTargy + " – " + C.nev)}">
+        <input type="hidden" name="from_name" value="${esc(C.nev + " weboldal")}">
+        <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off">
+        <label>Miben segíthetünk? *<select name="Típus" required>${K.keresTipusok.map(t => `<option>${esc(t)}</option>`).join("")}</select></label>
+        <div class="row2">
+          <label>Név *<input type="text" name="Név" required autocomplete="name"></label>
+          <label>Telefon *<input type="tel" name="Telefon" required autocomplete="tel"></label>
+        </div>
+        <label>E-mail *<input type="email" name="email" required autocomplete="email"></label>
+        <div class="row2">
+          <label>Dátum<input type="date" name="Dátum"></label>
+          <label>Hány főre?<input type="number" name="Létszám" min="1" max="60" placeholder="pl. 4"></label>
+        </div>
+        <label>Megjegyzés<textarea name="Megjegyzés" placeholder="pl. időpont, torta íze és mérete, különleges kérés…"></textarea></label>
+        <label class="consent"><input type="checkbox" required> Hozzájárulok, hogy adataimat a foglalás / rendelés céljából kezeljék.</label>
+        <div><button class="btn" id="send" type="submit">Elküldöm</button></div>
+        <div class="msg" id="msg" role="status"></div>
+      </form>
+    </div>
+  </section>`);
+
+  document.getElementById("app").innerHTML = html.join("");
+  document.getElementById("links").innerHTML = nav.map(([id, t]) => `<a href="#${id}">${esc(t)}</a>`).join("") + `<a class="btn" href="#foglalas">${esc(C.hero.gomb2)}</a>`;
+
+  /* --- Beúszás --- */
+  const els = document.querySelectorAll(".rv");
+  if ("IntersectionObserver" in window && !reduce) {
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: 0.12 });
+    els.forEach(el => io.observe(el));
+  } else els.forEach(el => el.classList.add("in"));
+
+  /* --- Menü fülek + tálca --- */
+  const itemsEl = document.getElementById("items"), trayEl = document.getElementById("tray"), rec = document.getElementById("receipt");
+  let tab = 0, tray = [];
+  function renderItems() {
+    itemsEl.innerHTML = M.kategoriak[tab].tetelek.map((t, i) => `
+      <button type="button" class="item" data-i="${i}" style="animation-delay:${i * 0.06}s" aria-label="${esc(t.nev)} hozzáadása a tálcához">
+        <span class="ico">${esc(t.ikon)}</span><span><strong>${esc(t.nev)}</strong><small>${esc(t.leiras)}</small></span>
+        <span class="pr">${money(t.ar)}</span><span class="plus" aria-hidden="true">+</span>
+      </button>`).join("");
+  }
+  function renderTray() {
+    const empty = !tray.length;
+    trayEl.innerHTML = empty ? `<div class="empty">Még üres a tálcád…<br>kattints valamire! ☺</div>`
+      : tray.map((t, i) => `<span class="t" data-r="${i}" title="${esc(t.nev)} – kattints a levételhez">${esc(t.ikon)}</span>`).join("");
+    const sum = tray.reduce((a, t) => a + t.ar, 0);
+    const counts = {}; tray.forEach(t => counts[t.nev] = (counts[t.nev] || 0) + 1);
+    rec.innerHTML = empty ? `<div class="total"><span>Összesen</span><b>0 ${esc(M.penznem)}</b></div><div class="rnote">Ez csak egy játékos árkalkulátor – rendelni a pultnál tudsz.</div>`
+      : Object.entries(counts).map(([n, c]) => `<div class="row"><span>${c}× ${esc(n)}</span></div>`).join("") +
+        `<div class="total"><span>Összesen</span><b>${money(sum)}</b></div><div class="rnote">Ez csak egy játékos árkalkulátor – rendelni a pultnál tudsz.</div><button type="button" id="clear">Kiürítem a tálcát</button>`;
+  }
+  document.querySelector(".tabs").addEventListener("click", e => {
+    const b = e.target.closest("[data-tab]"); if (!b) return;
+    tab = +b.dataset.tab; document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("on", x === b)); renderItems();
+  });
+  itemsEl.addEventListener("click", e => {
+    const b = e.target.closest("[data-i]"); if (!b) return;
+    if (tray.length >= 16) return;
+    tray.push(M.kategoriak[tab].tetelek[+b.dataset.i]); renderTray();
+  });
+  trayEl.addEventListener("click", e => { const t = e.target.closest("[data-r]"); if (t) { tray.splice(+t.dataset.r, 1); renderTray(); } });
+  rec.addEventListener("click", e => { if (e.target.id === "clear") { tray = []; renderTray(); } });
+  renderItems(); renderTray();
+
+  // Amikor a tálca először láthatóvá válik, magától "rápottyan" két tétel – így azonnal érthető a játék.
+  if ("IntersectionObserver" in window && !reduce) {
+    const io2 = new IntersectionObserver(es => { if (es[0].isIntersecting && !tray.length) {
+      io2.disconnect();
+      const demo = [M.kategoriak[0].tetelek[1], M.kategoriak[1] && M.kategoriak[1].tetelek[0]].filter(Boolean);
+      demo.forEach((t, i) => setTimeout(() => { if (tray.length < 2) { tray.push(t); renderTray(); } }, 500 + i * 600));
+    } }, { threshold: 0.6 });
+    io2.observe(trayEl);
+  }
+
+  /* --- Űrlap (Web3Forms) --- */
+  document.getElementById("form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const f = e.target, b = document.getElementById("send"), m = document.getElementById("msg");
+    b.disabled = true; m.className = "msg";
+    try {
+      const fd = new FormData(f); fd.set("replyto", fd.get("email") || "");
+      const r = await fetch(f.action, { method: "POST", headers: { Accept: "application/json" }, body: fd });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok || !d.success) throw new Error(d.message || "HTTP " + r.status);
+      f.reset(); m.className = "msg ok"; m.textContent = "Köszönjük! Hamarosan visszajelzünk. ☕";
+    } catch (err) {
+      m.className = "msg err"; m.textContent = "Hiba történt a küldés közben. Kérjük, próbáld újra, vagy hívj minket.";
+    } finally { b.disabled = false; }
+  });
+})();
+</script>
+</body>
+</html>
