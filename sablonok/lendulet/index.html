@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Betöltés…</title>
+<meta name="description" content="">
+
+<script>
+/* ==========================================================================
+   ÜGYFÉLADATOK – CSAK EZT A RÉSZT KELL SZERKESZTENI
+   --------------------------------------------------------------------------
+   Minden szöveg, szín, óra, bérlet és elérhetőség innen töltődik be.
+   "hangulat": "energikus" (személyi edző, HIIT, crossfit, box)
+            vagy "nyugodt"  (jóga, pilates, stretching).
+   FONTOS: a "velemenyek" itt mintaszövegek – élesítés előtt cseréld le
+   valódi véleményekre, vagy kapcsold ki a szekciót.
+   ========================================================================== */
+const CONFIG = {
+  // DEMÓ mód: true = felül megjelenik a "Lydigital mintaoldal" sáv hangulatváltóval. Ügyfélnél: false!
+  demo: true,
+
+  // --- Alapadatok ---
+  nev: "Lendület",
+  alcim: "Stúdió",
+  domain: "https://pelda.hu/",
+  hangulat: "energikus",                 // "energikus" | "nyugodt"
+  szinEnergikus: "#c6ff3d",              // kiemelőszín energikus módban
+  szinNyugodt: "#7f9a86",                // kiemelőszín nyugodt módban
+  seoCim: "Lendület Stúdió – személyi edzés, csoportos órák, jóga és pilates",
+  seoLeiras: "Személyi edzés, HIIT, jóga és pilates órák kezdőknek és haladóknak. Nézd meg az órarendet, és foglald le az első, ingyenes órádat!",
+  tipus: "ExerciseGym",                  // SEO: ExerciseGym | SportsActivityLocation | HealthClub
+
+  // --- Nyitórész ---
+  hero: {
+    felirat: "Edzés · Jóga · Pilates",
+    cim: "Erősebb leszel, mint *tegnap*.",         // *csillagok közé* = kiemelt, "dobogó/lélegző" szó
+    szoveg: "Kiscsoportos és személyi edzések, ahol figyelünk a technikádra, a tempódra és arra, hogy élvezd is.",
+    gomb: "Első óra ingyen",
+    gomb2: "Órarend",
+    szamok: [ { szam: "12+", cimke: "óra hetente" }, { szam: "6 fő", cimke: "max. csoportlétszám" }, { szam: "1.", cimke: "óra ingyenes" } ]
+  },
+
+  szalag: ["HIIT", "Funkcionális edzés", "Reggeli jóga", "Pilates", "Mobilitás", "Személyi edzés"],
+
+  // --- Órarend ---  nap: 0 = hétfő … 6 = vasárnap
+  orarend: {
+    cim: "Órarend",
+    alcim: "Válassz napot és óratípust – a helyekre a jelentkezéssel tudsz feliratkozni.",
+    orak: [
+      { nap: 0, ido: "07:00", hossz: "60 perc", nev: "Reggeli jóga", tipus: "Jóga", szint: "Minden szint", helyek: 3 },
+      { nap: 0, ido: "18:00", hossz: "45 perc", nev: "HIIT", tipus: "Erőnléti", szint: "Haladó", helyek: 2 },
+      { nap: 1, ido: "08:00", hossz: "55 perc", nev: "Matrac pilates", tipus: "Pilates", szint: "Kezdő", helyek: 5 },
+      { nap: 1, ido: "19:00", hossz: "60 perc", nev: "Funkcionális köredzés", tipus: "Erőnléti", szint: "Minden szint", helyek: 4 },
+      { nap: 2, ido: "07:00", hossz: "60 perc", nev: "Vinyasa flow", tipus: "Jóga", szint: "Haladó", helyek: 1 },
+      { nap: 2, ido: "18:30", hossz: "45 perc", nev: "Mobilitás & nyújtás", tipus: "Mobilitás", szint: "Minden szint", helyek: 6 },
+      { nap: 3, ido: "08:00", hossz: "55 perc", nev: "Pilates core", tipus: "Pilates", szint: "Haladó", helyek: 2 },
+      { nap: 3, ido: "18:00", hossz: "45 perc", nev: "HIIT", tipus: "Erőnléti", szint: "Haladó", helyek: 0 },
+      { nap: 4, ido: "07:00", hossz: "60 perc", nev: "Reggeli jóga", tipus: "Jóga", szint: "Minden szint", helyek: 4 },
+      { nap: 4, ido: "17:30", hossz: "60 perc", nev: "Funkcionális köredzés", tipus: "Erőnléti", szint: "Minden szint", helyek: 3 },
+      { nap: 5, ido: "09:00", hossz: "75 perc", nev: "Hétvégi jóga", tipus: "Jóga", szint: "Kezdő", helyek: 5 },
+      { nap: 5, ido: "10:30", hossz: "50 perc", nev: "Pilates kezdőknek", tipus: "Pilates", szint: "Kezdő", helyek: 6 }
+    ]
+  },
+
+  // --- Bérletek ---
+  berletek: {
+    cim: "Bérletek",
+    elemek: [
+      { nev: "Alkalmi jegy", ar: "4 500 Ft", per: "/ óra", pontok: ["Bármelyik csoportos óra", "Előzetes jelentkezéssel"] },
+      { nev: "8 alkalmas bérlet", ar: "29 900 Ft", per: "/ 6 hét", pontok: ["Bármelyik csoportos óra", "Szabad órarendválasztás", "Állapotfelmérés ajándékba"], kiemelt: true },
+      { nev: "Személyi edzés", ar: "11 900 Ft", per: "/ alkalom", pontok: ["Egyéni edzésterv", "Táplálkozási alapok", "Rugalmas időpont"] }
+    ]
+  },
+
+  // --- Edző / rólam ---
+  edzo: {
+    mutat: true,
+    cim: "Minta Dávid vagyok",
+    kep: "",                                 // pl. "img/edzo.jpg"
+    szoveg: [
+      "Nyolc éve edzek másokat, és hiszem, hogy a mozgásnak jólesnie kell – nem büntetésnek lennie.",
+      "Az órákon a helyes technikára és a fokozatos fejlődésre figyelek, kezdőktől a versenyzőkig."
+    ],
+    vegzettsegek: ["Okleveles személyi edző", "Jógaoktató (RYT-200)", "Pilates matrac oktató", "Elsősegély-tanfolyam"]
+  },
+
+  // --- Vélemények (MINTA – cseréld valódira!) ---
+  velemenyek: {
+    mutat: true,
+    cim: "Akik már itt edzenek",
+    elemek: [
+      { szoveg: "Mintaszöveg: Három hónap alatt életem legjobb formájába kerültem, és végre szeretek edzeni.", nev: "Minta Tag" },
+      { szoveg: "Mintaszöveg: A reggeli jóga óta sokkal kevésbé fáj a hátam, és nyugodtabban kezdem a napot.", nev: "Minta Tag" }
+    ]
+  },
+
+  // --- Kapcsolat / jelentkezés ---
+  kapcsolat: {
+    cim: "Foglald le az első órád",
+    szoveg: "Az első alkalom ingyenes. Írd meg, melyik óra érdekel, és visszaigazoljuk a helyed.",
+    telefon: "+36 30 123 4567",
+    email: "hello@pelda.hu",
+    cim2: "1117 Budapest, Minta utca 3.",
+    terkepLink: "",
+    instagram: "",
+    urlapTargy: "Új jelentkezés a weboldalról",
+    web3formsKulcs: "f8e65129-8029-4310-8348-f7d2f6f712f3"   // ügyfélnél: az ügyfél saját kulcsa
+  }
+};
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Fraunces:ital,opsz,wght@0,9..144,500;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Két hangulat, egy sablon ---------- */
+  :root, [data-mood="energikus"] {
+    --bg: #111214; --surface: #1a1c20; --surface2: #22252b; --ink: #f3f3ee; --muted: #9a9ca3; --line: #2b2e35;
+    --accent: #c6ff3d; --on-accent: #111214;
+    --head: "Anton", Impact, sans-serif; --head-tt: uppercase; --head-ls: .01em; --head-lh: .95;
+    --radius: 6px; --pill: 6px;
+  }
+  [data-mood="nyugodt"] {
+    --bg: #f4f1ec; --surface: #ffffff; --surface2: #ece7df; --ink: #2b2a28; --muted: #7b766f; --line: #e2dbd0;
+    --accent: #7f9a86; --on-accent: #ffffff;
+    --head: "Fraunces", Georgia, serif; --head-tt: none; --head-ls: -.01em; --head-lh: 1.05;
+    --radius: 26px; --pill: 999px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--ink); font: 400 17px/1.65 Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; transition: background .5s, color .5s; }
+  a { color: inherit; }
+  h1, h2, h3 { font-family: var(--head); font-weight: 500; text-transform: var(--head-tt); letter-spacing: var(--head-ls); line-height: var(--head-lh); }
+  em { font-style: normal; color: var(--accent); display: inline-block; }
+  [data-mood="nyugodt"] em { font-style: italic; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; position: relative; }
+  section { padding: 110px 0; position: relative; }
+  .kicker { font: 600 13px Inter, sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); }
+  .head { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 44px; flex-wrap: wrap; }
+  .head h2 { font-size: clamp(44px, 6vw, 84px); margin-top: 8px; }
+  .head p { color: var(--muted); max-width: 420px; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px; padding: 15px 28px; border-radius: var(--pill); border: 2px solid var(--accent);
+    background: var(--accent); color: var(--on-accent); font: 700 15px Inter, sans-serif; letter-spacing: .04em; text-decoration: none; cursor: pointer; text-transform: uppercase;
+    transition: transform .2s, background .2s, color .2s;
+  }
+  [data-mood="nyugodt"] .btn { text-transform: none; font-weight: 600; letter-spacing: 0; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn.ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  .btn.ghost:hover { border-color: var(--accent); }
+
+  /* --- Demó sáv hangulatváltóval --- */
+  .demo-bar { background: var(--accent); color: var(--on-accent); font-size: 13px; padding: 8px 16px; display: flex; justify-content: center; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .demo-bar a { color: inherit; font-weight: 700; white-space: nowrap; }
+  .demo-bar .sw { display: inline-flex; border: 1px solid currentColor; border-radius: 999px; overflow: hidden; }
+  .demo-bar .sw button { background: none; border: 0; color: inherit; font: 600 12px Inter, sans-serif; padding: 4px 12px; cursor: pointer; }
+  .demo-bar .sw button.on { background: var(--on-accent); color: var(--accent); }
+  .demo-bar[hidden] { display: none; }
+
+  /* --- Header --- */
+  header { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+  .nav { height: 74px; display: flex; align-items: center; justify-content: space-between; }
+  .brand { text-decoration: none; display: flex; align-items: center; gap: 10px; }
+  .brand .mark { width: 34px; height: 34px; border-radius: var(--radius); background: var(--accent); color: var(--on-accent); display: grid; place-items: center; font: 700 18px var(--head); }
+  .brand strong { font: 500 24px var(--head); text-transform: var(--head-tt); letter-spacing: .02em; }
+  .brand span { color: var(--muted); font-size: 13px; margin-left: 4px; }
+  .links { display: flex; gap: 28px; align-items: center; font-size: 15px; font-weight: 500; }
+  .links a { text-decoration: none; color: var(--muted); }
+  .links a:hover { color: var(--ink); }
+  .links .btn { padding: 10px 18px; font-size: 13px; color: var(--on-accent); }
+  .burger { display: none; background: none; border: 0; font-size: 26px; cursor: pointer; color: var(--ink); }
+
+  /* --- Hero --- */
+  .hero { padding: 80px 0 60px; overflow: hidden; }
+  .hero h1 { font-size: clamp(64px, 11vw, 168px); margin: 18px 0 26px; max-width: 1100px; }
+  [data-mood="nyugodt"] .hero h1 { font-size: clamp(54px, 8.4vw, 124px); }
+  [data-mood="energikus"] .hero h1 em { animation: beat 1.6s ease-in-out infinite; transform-origin: 50% 70%; }
+  [data-mood="nyugodt"] .hero h1 em { animation: breathe 8s ease-in-out infinite; }
+  @keyframes beat { 0%, 40%, 100% { transform: scale(1); } 10% { transform: scale(1.06); } 20% { transform: scale(.99); } 28% { transform: scale(1.04); } }
+  @keyframes breathe { 0%, 100% { letter-spacing: -.01em; opacity: .85; } 50% { letter-spacing: .06em; opacity: 1; } }
+  .hero-row { display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: end; }
+  .hero p { color: var(--muted); font-size: 19px; max-width: 520px; margin-bottom: 30px; }
+  .ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+  .hstats { display: flex; gap: 36px; }
+  .hstats strong { display: block; font: 500 44px/1 var(--head); color: var(--ink); }
+  .hstats span { color: var(--muted); font-size: 14px; }
+  .pulse-line { width: 100%; height: 90px; margin-top: 56px; display: block; overflow: visible; }
+  .pulse-line path { fill: none; stroke: var(--accent); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  [data-mood="energikus"] .pulse-line .ecg { stroke-dasharray: 1400; stroke-dashoffset: 1400; animation: ecg 2.8s linear infinite; }
+  [data-mood="energikus"] .pulse-line .wave { display: none; }
+  [data-mood="nyugodt"] .pulse-line .ecg { display: none; }
+  [data-mood="nyugodt"] .pulse-line .wave { animation: sway 9s ease-in-out infinite; opacity: .7; }
+  @keyframes ecg { to { stroke-dashoffset: -1400; } }
+  @keyframes sway { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-60px); } }
+
+  /* --- Szalag --- */
+  .ribbon { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); overflow: hidden; white-space: nowrap; padding: 18px 0; }
+  .ribbon-track { display: inline-flex; animation: marquee 26s linear infinite; font: 500 34px var(--head); text-transform: var(--head-tt); }
+  [data-mood="nyugodt"] .ribbon-track { animation-duration: 50s; font-style: italic; }
+  .ribbon-track span { padding: 0 28px; display: inline-flex; align-items: center; gap: 56px; }
+  .ribbon-track span::after { content: "✦"; color: var(--accent); font-size: 20px; }
+  @keyframes marquee { to { transform: translateX(-50%); } }
+
+  /* --- Órarend --- */
+  .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 16px; }
+  .days button { padding: 14px 6px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; font: 600 15px Inter, sans-serif; transition: background .2s, color .2s, border-color .2s; position: relative; }
+  .days button small { display: block; font-weight: 400; font-size: 12px; color: var(--muted); }
+  .days button.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .days button.on small { color: inherit; opacity: .75; }
+  .days button.today::after { content: ""; position: absolute; top: 8px; right: 8px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .days button.on.today::after { background: var(--on-accent); }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+  .chips button { padding: 8px 16px; border-radius: var(--pill); border: 1px solid var(--line); background: transparent; color: var(--muted); font: 500 14px Inter, sans-serif; cursor: pointer; }
+  .chips button.on { color: var(--ink); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+  .classes { display: grid; gap: 10px; min-height: 120px; }
+  .cls {
+    display: grid; grid-template-columns: 110px 1fr auto auto; gap: 22px; align-items: center; padding: 20px 24px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    animation: slidein .5s cubic-bezier(.2,.8,.2,1) backwards; transition: border-color .2s;
+  }
+  .cls:hover { border-color: var(--accent); }
+  @keyframes slidein { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
+  .cls .time { font: 500 34px/1 var(--head); }
+  .cls .time small { display: block; font: 400 13px Inter, sans-serif; color: var(--muted); margin-top: 6px; text-transform: none; }
+  .cls h3 { font-size: 26px; }
+  [data-mood="nyugodt"] .cls h3 { font-size: 24px; }
+  .cls .tags { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+  .cls .tags span { font-size: 12px; padding: 3px 10px; border-radius: var(--pill); background: var(--surface2); color: var(--muted); }
+  .spots { font-size: 14px; color: var(--muted); text-align: right; white-space: nowrap; }
+  .spots .bar { width: 90px; height: 6px; border-radius: 6px; background: var(--surface2); margin-top: 6px; overflow: hidden; margin-left: auto; }
+  .spots .bar i { display: block; height: 100%; background: var(--accent); }
+  .spots.full { color: #ff6b6b; }
+  .spots.full .bar i { background: #ff6b6b; }
+  .cls .btn { padding: 11px 18px; font-size: 13px; }
+  .cls .btn[disabled] { opacity: .4; pointer-events: none; }
+  .empty { color: var(--muted); padding: 30px; text-align: center; border: 1px dashed var(--line); border-radius: var(--radius); }
+
+  /* --- Bérletek --- */
+  .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .plan { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 34px 30px; display: flex; flex-direction: column; gap: 14px; transition: transform .3s; }
+  .plan:hover { transform: translateY(-6px); }
+  .plan.hot { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .plan.hot .muted, .plan.hot li { color: inherit; }
+  .plan h3 { font-size: 30px; }
+  .plan .price { font: 500 52px/1 var(--head); }
+  .plan .price small { font: 400 15px Inter, sans-serif; opacity: .7; }
+  .plan ul { list-style: none; display: grid; gap: 8px; flex: 1; }
+  .plan li { display: flex; gap: 10px; color: var(--muted); font-size: 15px; }
+  .plan li::before { content: "✓"; font-weight: 700; color: var(--accent); }
+  .plan.hot li::before { color: inherit; }
+  .plan .btn { justify-content: center; }
+  .plan.hot .btn { background: var(--on-accent); color: var(--accent); border-color: var(--on-accent); }
+
+  /* --- Edző --- */
+  .coach { display: grid; grid-template-columns: .85fr 1.15fr; gap: 64px; align-items: center; }
+  .photo { aspect-ratio: 4/5; border-radius: var(--radius); overflow: hidden; position: relative; background: linear-gradient(160deg, var(--surface2), color-mix(in srgb, var(--accent) 35%, var(--surface))); }
+  .photo img { width: 100%; height: 100%; object-fit: cover; }
+  .photo .ph { position: absolute; inset: 0; display: grid; place-items: center; font: 500 140px var(--head); color: var(--accent); opacity: .85; }
+  .photo::after { content: ""; position: absolute; inset: 14px; border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent); border-radius: calc(var(--radius) - 4px); pointer-events: none; }
+  .coach h2 { font-size: clamp(40px, 5vw, 70px); margin: 10px 0 22px; }
+  .coach p { color: var(--muted); margin-bottom: 16px; }
+  .creds { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin-top: 22px; }
+  .creds li { padding: 8px 14px; border-radius: var(--pill); border: 1px solid var(--line); font-size: 14px; }
+
+  /* --- Vélemények --- */
+  .quotes { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .quote { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 36px; border-left: 4px solid var(--accent); }
+  .quote blockquote { font: 500 24px/1.35 var(--head); text-transform: none; letter-spacing: 0; }
+  [data-mood="energikus"] .quote blockquote { font-family: Inter, sans-serif; font-weight: 500; font-size: 21px; }
+  .quote cite { display: block; margin-top: 16px; font-style: normal; color: var(--muted); font-size: 14px; }
+
+  /* --- Kapcsolat --- */
+  .cta-band { background: var(--accent); color: var(--on-accent); border-radius: var(--radius); padding: 56px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+  .cta-band h2 { font-size: clamp(42px, 5.4vw, 76px); }
+  .cta-band .lead { margin: 18px 0 26px; opacity: .85; }
+  .cta-band .info { list-style: none; display: grid; gap: 8px; font-size: 15px; }
+  .cta-band .info b { margin-right: 6px; }
+  .cta-band .info a { text-decoration: none; border-bottom: 1px solid currentColor; }
+  form { display: grid; gap: 14px; background: var(--bg); color: var(--ink); border-radius: calc(var(--radius) + 2px); padding: 30px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  label { display: grid; gap: 6px; font-size: 13px; font-weight: 600; letter-spacing: .04em; color: var(--muted); }
+  input:not([type=checkbox]), select, textarea {
+    width: 100%; padding: 13px 15px; border-radius: calc(var(--radius) - 2px); border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: 400 16px Inter, sans-serif; outline: none;
+  }
+  [data-mood="nyugodt"] input:not([type=checkbox]), [data-mood="nyugodt"] select, [data-mood="nyugodt"] textarea { border-radius: 14px; }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  textarea { min-height: 90px; resize: vertical; }
+  .consent { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; letter-spacing: 0; }
+  .consent input { accent-color: var(--accent); margin-top: 3px; }
+  .hp { position: absolute; left: -9999px; }
+  .msg { display: none; padding: 12px 14px; border-radius: 10px; font-size: 15px; }
+  .msg.ok { display: block; background: color-mix(in srgb, var(--accent) 20%, transparent); }
+  .msg.err { display: block; background: #ff6b6b33; }
+
+  footer { padding: 30px 0 40px; font-size: 13px; color: var(--muted); }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  footer a { text-decoration: none; }
+  footer .credit strong { color: var(--ink); font-weight: 600; transition: color .2s; }
+  footer .credit:hover strong { color: var(--accent); }
+
+  .rv { opacity: 0; transform: translateY(28px); transition: opacity .8s, transform .8s cubic-bezier(.2,.8,.2,1); }
+  .rv.in { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .rv { opacity: 1; transform: none; }
+    .pulse-line .ecg { stroke-dashoffset: 0 !important; }
+  }
+  @media (max-width: 960px) {
+    section { padding: 80px 0; }
+    .hero-row, .coach, .cta-band, .quotes { grid-template-columns: 1fr; }
+    .plans { grid-template-columns: 1fr; }
+    .cls { grid-template-columns: 84px 1fr; }
+    .cls .spots { grid-column: 2; text-align: left; } .cls .spots .bar { margin-left: 0; }
+    .cls .btn { grid-column: 2; justify-self: start; }
+    .cta-band { padding: 36px 24px; }
+    .photo { max-width: 380px; }
+  }
+  @media (max-width: 640px) {
+    .wrap { padding: 0 16px; }
+    .burger { display: block; }
+    .links { display: none; position: absolute; top: 74px; left: 0; right: 0; background: var(--bg); flex-direction: column; align-items: flex-start; padding: 24px 16px; gap: 18px; border-bottom: 1px solid var(--line); }
+    .links.open { display: flex; }
+    .days { grid-template-columns: repeat(7, minmax(44px, 1fr)); overflow-x: auto; gap: 6px; }
+    .days button { padding: 10px 2px; font-size: 13px; }
+    .days button small { display: none; }
+    .hstats { gap: 22px; } .hstats strong { font-size: 34px; }
+    .row2 { grid-template-columns: 1fr; }
+    form { padding: 20px; }
+    .ribbon-track { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-bar" id="demo-bar" hidden>
+  <span>Ez egy <strong>Lydigital</strong> mintaoldal – a stúdió és az adatok kitaláltak.</span>
+  <span class="sw" role="group" aria-label="Hangulat"><button type="button" data-mood="energikus">Energikus</button><button type="button" data-mood="nyugodt">Nyugodt</button></span>
+  <a href="https://lydigital.hu/#sablonok">Ilyet szeretnék →</a>
+</div>
+
+<header>
+  <div class="wrap nav">
+    <a href="#" class="brand"><span class="mark" id="brand-mark"></span><strong id="brand-name"></strong><span id="brand-sub"></span></a>
+    <button class="burger" aria-label="Menü" onclick="document.querySelector('.links').classList.toggle('open')">☰</button>
+    <nav class="links" id="links" onclick="if(event.target.tagName==='A')this.classList.remove('open')"></nav>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<footer><div class="wrap"><span id="foot-left"></span><a class="credit" href="https://lydigital.hu/" target="_blank" rel="noopener">Designed by <strong>Lydigital</strong></a><a href="#">Vissza a tetejére ↑</a></div></footer>
+
+<script>
+(function () {
+  const C = CONFIG, K = C.kapcsolat, O = C.orarend.orak;
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const on = s => s && s.mutat !== false;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const NAPOK = ["Hétfő", "Kedd", "Szerda", "Csütörtök", "Péntek", "Szombat", "Vasárnap"];
+  const ROVID = ["H", "K", "Sze", "Cs", "P", "Szo", "V"];
+
+  /* --- Hangulat (színek, betűk, animációk) --- */
+  function setMood(m) {
+    document.documentElement.setAttribute("data-mood", m);
+    document.documentElement.style.setProperty("--accent", m === "nyugodt" ? C.szinNyugodt : C.szinEnergikus);
+    document.querySelectorAll(".demo-bar [data-mood]").forEach(b => b.classList.toggle("on", b.dataset.mood === m));
+  }
+  setMood(C.hangulat === "nyugodt" ? "nyugodt" : "energikus");
+  if (C.demo) {
+    document.getElementById("demo-bar").hidden = false;
+    document.querySelector(".demo-bar .sw").addEventListener("click", e => { const b = e.target.closest("[data-mood]"); if (b) setMood(b.dataset.mood); });
+  }
+
+  document.title = C.seoCim;
+  document.querySelector('meta[name="description"]').setAttribute("content", C.seoLeiras);
+  document.getElementById("brand-mark").textContent = C.nev[0];
+  document.getElementById("brand-name").textContent = C.nev;
+  document.getElementById("brand-sub").textContent = C.alcim;
+  document.getElementById("foot-left").textContent = "© " + new Date().getFullYear() + " " + C.nev + " " + C.alcim;
+
+  const ld = { "@context": "https://schema.org", "@type": C.tipus || "ExerciseGym", name: C.nev + " " + C.alcim, url: C.domain, description: C.seoLeiras,
+    telephone: K.telefon, email: K.email, address: { "@type": "PostalAddress", streetAddress: K.cim2, addressCountry: "HU" },
+    makesOffer: C.berletek.elemek.map(b => ({ "@type": "Offer", name: b.nev, description: b.ar + " " + b.per })) };
+  if (K.instagram) ld.sameAs = [K.instagram];
+  const s = document.createElement("script"); s.type = "application/ld+json"; s.textContent = JSON.stringify(ld); document.head.appendChild(s);
+
+  const today = (new Date().getDay() + 6) % 7;
+  const nav = [], html = [];
+
+  html.push(`
+  <section class="hero">
+    <div class="wrap">
+      <span class="kicker rv">${esc(C.hero.felirat)}</span>
+      <h1 class="rv">${esc(C.hero.cim).replace(/\*([^*]+)\*/g, "<em>$1</em>")}</h1>
+      <div class="hero-row rv">
+        <div><p>${esc(C.hero.szoveg)}</p>
+          <div class="ctas"><a class="btn" href="#jelentkezes">${esc(C.hero.gomb)}</a><a class="btn ghost" href="#orarend">${esc(C.hero.gomb2)}</a></div></div>
+        <div class="hstats">${C.hero.szamok.map(x => `<div><strong>${esc(x.szam)}</strong><span>${esc(x.cimke)}</span></div>`).join("")}</div>
+      </div>
+      <svg class="pulse-line" viewBox="0 0 1200 90" preserveAspectRatio="none" aria-hidden="true">
+        <path class="ecg" d="M0 50 H360 L385 50 L400 20 L418 82 L436 6 L454 68 L470 50 H760 L785 50 L800 20 L818 82 L836 6 L854 68 L870 50 H1200"/>
+        <path class="wave" d="M-100 50 C 0 15, 100 15, 200 50 S 400 85, 500 50 S 700 15, 800 50 S 1000 85, 1100 50 S 1300 15, 1400 50"/>
+      </svg>
+    </div>
+  </section>`);
+
+  if (C.szalag && C.szalag.length) { const it = C.szalag.map(t => `<span>${esc(t)}</span>`).join(""); html.push(`<div class="ribbon" aria-hidden="true"><div class="ribbon-track">${it}${it}${it}${it}</div></div>`); }
+
+  nav.push(["orarend", C.orarend.cim]);
+  const types = ["Mind", ...new Set(O.map(o => o.tipus))];
+  html.push(`
+  <section id="orarend">
+    <div class="wrap">
+      <div class="head rv"><div><span class="kicker">Heti beosztás</span><h2>${esc(C.orarend.cim)}</h2></div><p>${esc(C.orarend.alcim)}</p></div>
+      <div class="days rv" role="tablist">${NAPOK.map((n, i) => `<button type="button" role="tab" data-day="${i}" class="${i === today ? "today on" : ""}"><span>${ROVID[i]}</span><small>${n}</small></button>`).join("")}</div>
+      <div class="chips rv">${types.map((t, i) => `<button type="button" data-type="${esc(t)}" class="${i === 0 ? "on" : ""}">${esc(t)}</button>`).join("")}</div>
+      <div class="classes" id="classes" aria-live="polite"></div>
+    </div>
+  </section>`);
+
+  nav.push(["berletek", C.berletek.cim]);
+  html.push(`
+  <section id="berletek" style="padding-top:20px">
+    <div class="wrap">
+      <div class="head rv"><div><span class="kicker">Árak</span><h2>${esc(C.berletek.cim)}</h2></div></div>
+      <div class="plans">${C.berletek.elemek.map(b => `
+        <article class="plan rv${b.kiemelt ? " hot" : ""}"><h3>${esc(b.nev)}</h3><div class="price">${esc(b.ar)} <small>${esc(b.per)}</small></div>
+          <ul>${b.pontok.map(p => `<li>${esc(p)}</li>`).join("")}</ul>
+          <a class="btn${b.kiemelt ? "" : " ghost"}" href="#jelentkezes" data-plan="${esc(b.nev)}">Ezt kérem</a></article>`).join("")}
+      </div>
+    </div>
+  </section>`);
+
+  if (on(C.edzo)) {
+    nav.push(["edzo", "Edző"]);
+    html.push(`
+  <section id="edzo" style="padding-top:20px">
+    <div class="wrap coach">
+      <div class="photo rv">${C.edzo.kep ? `<img src="${esc(C.edzo.kep)}" alt="${esc(C.edzo.cim)}" loading="lazy">` : `<div class="ph">${esc(C.nev[0])}</div>`}</div>
+      <div class="rv"><span class="kicker">Az edződ</span><h2>${esc(C.edzo.cim)}</h2>${C.edzo.szoveg.map(p => `<p>${esc(p)}</p>`).join("")}
+        <ul class="creds">${C.edzo.vegzettsegek.map(v => `<li>${esc(v)}</li>`).join("")}</ul></div>
+    </div>
+  </section>`);
+  }
+
+  if (on(C.velemenyek)) html.push(`
+  <section style="padding-top:20px">
+    <div class="wrap">
+      <div class="head rv"><div><span class="kicker">Vélemények</span><h2>${esc(C.velemenyek.cim)}</h2></div></div>
+      <div class="quotes">${C.velemenyek.elemek.map(v => `<figure class="quote rv"><blockquote>„${esc(v.szoveg)}”</blockquote><cite>— ${esc(v.nev)}</cite></figure>`).join("")}</div>
+    </div>
+  </section>`);
+
+  const classOpts = O.map(o => `${NAPOK[o.nap]} ${o.ido} – ${o.nev}`);
+  html.push(`
+  <section id="jelentkezes" style="padding-top:20px">
+    <div class="wrap">
+      <div class="cta-band rv">
+        <div>
+          <span class="kicker" style="color:inherit;opacity:.8">Jelentkezés</span>
+          <h2>${esc(K.cim)}</h2>
+          <p class="lead">${esc(K.szoveg)}</p>
+          <ul class="info">
+            ${K.telefon ? `<li><b>Telefon:</b><a href="tel:${esc(K.telefon.replace(/\s/g, ""))}">${esc(K.telefon)}</a></li>` : ""}
+            ${K.email ? `<li><b>E-mail:</b><a href="mailto:${esc(K.email)}">${esc(K.email)}</a></li>` : ""}
+            ${K.cim2 ? `<li><b>Cím:</b>${K.terkepLink ? `<a href="${esc(K.terkepLink)}" target="_blank" rel="noopener">${esc(K.cim2)}</a>` : esc(K.cim2)}</li>` : ""}
+            ${K.instagram ? `<li><b>Instagram:</b><a href="${esc(K.instagram)}" target="_blank" rel="noopener">kövess minket</a></li>` : ""}
+          </ul>
+        </div>
+        <form id="form" action="https://api.web3forms.com/submit" method="POST">
+          <input type="hidden" name="access_key" value="${esc(K.web3formsKulcs)}">
+          <input type="hidden" name="subject" value="${esc(K.urlapTargy + " – " + C.nev)}">
+          <input type="hidden" name="from_name" value="${esc(C.nev + " weboldal")}">
+          <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off">
+          <div class="row2">
+            <label>Név *<input type="text" name="Név" required autocomplete="name"></label>
+            <label>Telefon *<input type="tel" name="Telefon" required autocomplete="tel"></label>
+          </div>
+          <label>E-mail *<input type="email" name="email" required autocomplete="email"></label>
+          <label>Óra vagy bérlet<select name="Választás" id="pick"><option value="">Még nem tudom</option>
+            <optgroup label="Órák">${classOpts.map(o => `<option>${esc(o)}</option>`).join("")}</optgroup>
+            <optgroup label="Bérletek">${C.berletek.elemek.map(b => `<option>${esc(b.nev)}</option>`).join("")}</optgroup></select></label>
+          <label>Üzenet<textarea name="Üzenet" placeholder="pl. edzettség, célok, sérülés, amiről tudnunk kell…"></textarea></label>
+          <label class="consent"><input type="checkbox" required> Hozzájárulok, hogy adataimat a jelentkezés céljából kezeljék.</label>
+          <div><button class="btn" id="send" type="submit">Jelentkezem</button></div>
+          <div class="msg" id="msg" role="status"></div>
+        </form>
+      </div>
+    </div>
+  </section>`);
+
+  document.getElementById("app").innerHTML = html.join("");
+  document.getElementById("links").innerHTML = nav.map(([id, t]) => `<a href="#${id}">${esc(t)}</a>`).join("") + `<a class="btn" href="#jelentkezes">${esc(C.hero.gomb)}</a>`;
+
+  /* --- Beúszás --- */
+  const els = document.querySelectorAll(".rv");
+  if ("IntersectionObserver" in window && !reduce) {
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: 0.12 });
+    els.forEach(el => io.observe(el));
+  } else els.forEach(el => el.classList.add("in"));
+
+  /* --- Órarend: nap + típus szűrés --- */
+  let day = today, type = "Mind";
+  const list = document.getElementById("classes");
+  function renderClasses() {
+    const rows = O.filter(o => o.nap === day && (type === "Mind" || o.tipus === type)).sort((a, b) => a.ido.localeCompare(b.ido));
+    list.innerHTML = rows.length ? rows.map((o, i) => {
+      const full = o.helyek <= 0, max = 6, pct = Math.max(0, Math.min(100, 100 - (o.helyek / max) * 100));
+      const label = `${NAPOK[o.nap]} ${o.ido} – ${o.nev}`;
+      return `<div class="cls" style="animation-delay:${i * 0.07}s">
+        <div class="time">${esc(o.ido)}<small>${esc(o.hossz)}</small></div>
+        <div><h3>${esc(o.nev)}</h3><div class="tags"><span>${esc(o.tipus)}</span><span>${esc(o.szint)}</span></div></div>
+        <div class="spots${full ? " full" : ""}">${full ? "Betelt" : `Még ${o.helyek} hely`}<div class="bar"><i style="width:${pct}%"></i></div></div>
+        <a class="btn" href="#jelentkezes" data-class="${esc(label)}"${full ? " disabled" : ""}>Jelentkezem</a>
+      </div>`;
+    }).join("") : `<div class="empty">Ezen a napon nincs ilyen óra – válassz másik napot vagy típust.</div>`;
+  }
+  document.querySelector(".days").addEventListener("click", e => {
+    const b = e.target.closest("[data-day]"); if (!b) return; day = +b.dataset.day;
+    document.querySelectorAll(".days button").forEach(x => x.classList.toggle("on", x === b)); renderClasses();
+  });
+  document.querySelector(".chips").addEventListener("click", e => {
+    const b = e.target.closest("[data-type]"); if (!b) return; type = b.dataset.type;
+    document.querySelectorAll(".chips button").forEach(x => x.classList.toggle("on", x === b)); renderClasses();
+  });
+  renderClasses();
+
+  /* --- Óra / bérlet kiválasztása → űrlap előtöltése --- */
+  document.addEventListener("click", e => {
+    const a = e.target.closest("[data-class],[data-plan]"); if (!a) return;
+    document.getElementById("pick").value = a.dataset.class || a.dataset.plan;
+  });
+
+  /* --- Űrlap (Web3Forms) --- */
+  document.getElementById("form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const f = e.target, b = document.getElementById("send"), m = document.getElementById("msg");
+    b.disabled = true; m.className = "msg";
+    try {
+      const fd = new FormData(f); fd.set("replyto", fd.get("email") || "");
+      const r = await fetch(f.action, { method: "POST", headers: { Accept: "application/json" }, body: fd });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok || !d.success) throw new Error(d.message || "HTTP " + r.status);
+      f.reset(); m.className = "msg ok"; m.textContent = "Köszönjük! Hamarosan visszaigazoljuk a helyed.";
+    } catch (err) {
+      m.className = "msg err"; m.textContent = "Hiba történt a küldés közben. Kérjük, próbáld újra, vagy hívj minket.";
+    } finally { b.disabled = false; }
+  });
+})();
+</script>
+</body>
+</html>
