@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Betöltés…</title>
+<meta name="description" content="">
+
+<script>
+/* ==========================================================================
+   ÜGYFÉLADATOK – CSAK EZT A RÉSZT KELL SZERKESZTENI
+   --------------------------------------------------------------------------
+   Minden szöveg, szín, szolgáltatás és elérhetőség innen töltődik be.
+   Ha egy szekcióra nincs szükség, állítsd a "mutat" értékét false-ra.
+   FONTOS: a "velemenyek" itt mintaszövegek – élesítés előtt cseréld le
+   valódi ügyfélvéleményekre, vagy kapcsold ki a szekciót.
+   ========================================================================== */
+const CONFIG = {
+  // DEMÓ mód: true = felül megjelenik a "Lydigital mintaoldal" sáv.
+  // Ügyfélnél állítsd false-ra!
+  demo: true,
+
+  // --- Alapadatok ---
+  nev: "Példa & Társa",
+  alcim: "Könyvelőiroda",                 // a logó mellett / alatt jelenik meg
+  domain: "https://pelda.hu/",            // az ügyfél domainje (SEO-hoz)
+  szin: "#1f4ed8",                        // márkaszín – bármilyen hex kód
+  seoCim: "Példa & Társa Könyvelőiroda – könyvelés kis- és középvállalkozásoknak",
+  seoLeiras: "Könyvelés, bérszámfejtés és adótanácsadás kis- és középvállalkozásoknak Budapesten és online. Ingyenes első konzultáció.",
+  tipus: "AccountingService",             // SEO: AccountingService | LegalService | ProfessionalService
+
+  // --- Nyitórész ---
+  hero: {
+    cim: "Rendben tartjuk a számokat, hogy te a vállalkozásodra figyelhess.",
+    szoveg: "Könyvelés, bérszámfejtés és adótanácsadás egyéni vállalkozóknak és kft.-knek – átlátható díjakkal, határidőre.",
+    gomb: "Ingyenes konzultáció",
+    tenyek: ["Budapest és online", "H–P 9:00–17:00", "Első konzultáció ingyenes"]
+  },
+
+  // --- Számok (görgetéskor felpörögnek) ---
+  szamok: {
+    mutat: true,
+    elemek: [
+      { szam: 15, utotag: "+", cimke: "év tapasztalat" },
+      { szam: 120, utotag: "", cimke: "aktív ügyfél" },
+      { szam: 0, utotag: "", cimke: "elmulasztott határidő" },
+      { szam: 98, utotag: "%", cimke: "ügyfélmegtartás" }
+    ]
+  },
+
+  // --- Szolgáltatások ---
+  szolgaltatasok: {
+    cim: "Szolgáltatások",
+    elemek: [
+      { nev: "Könyvelés", leiras: "Teljes körű könyvelés egyéni vállalkozóknak, bt.-knek és kft.-knek, havi riporttal.", ar: "25 000 Ft / hó-tól" },
+      { nev: "Bérszámfejtés", leiras: "Bérek, járulékok, bevallások és munkaügyi dokumentáció egy kézben.", ar: "4 000 Ft / fő-től" },
+      { nev: "Adótanácsadás", leiras: "Adózási forma választása, optimalizálás, NAV-ellenőrzésre felkészítés.", ar: "15 000 Ft / óra" },
+      { nev: "Cégalapítás", leiras: "Segítünk a megfelelő cégforma kiválasztásában és az indulásban.", ar: "Egyedi ajánlat" }
+    ]
+  },
+
+  // --- Kalkulátor ---
+  kalkulator: {
+    mutat: true,
+    cim: "Mennyi időt spórolhatsz?",
+    szoveg: "Állítsd be, mennyi időt töltesz most adminisztrációval, és mennyit ér egy munkaórád.",
+    ora:  { cimke: "Adminisztráció havonta", min: 2, max: 60, alap: 12, egyseg: "óra" },
+    ertek:{ cimke: "Egy munkaórád értéke", min: 3000, max: 50000, lepes: 1000, alap: 10000, egyseg: "Ft" },
+    megtakaritas: 0.8,                     // a feladatok hányad részét vesszük le a válladról (0–1)
+    eredmenyCimke: "értékű időt szabadíthatsz fel évente",
+    megjegyzes: "Tájékoztató becslés, nem árajánlat."
+  },
+
+  // --- Folyamat ---
+  folyamat: {
+    mutat: true,
+    cim: "Így kezdünk",
+    lepesek: [
+      { cim: "Egyeztetés", szoveg: "Egy 30 perces, ingyenes beszélgetésen felmérjük, mire van szükséged." },
+      { cim: "Ajánlat", szoveg: "Átlátható, fix havidíjas ajánlatot kapsz, rejtett költségek nélkül." },
+      { cim: "Átállás", szoveg: "Átvesszük a korábbi könyvelőtől az anyagokat – neked nem kell vele foglalkoznod." }
+    ]
+  },
+
+  // --- Rólunk ---
+  rolunk: {
+    mutat: true,
+    cim: "Rólunk",
+    kep: "",                               // pl. "img/portre.jpg" – üresen a monogram jelenik meg
+    szoveg: [
+      "2010 óta segítünk kis- és középvállalkozásoknak abban, hogy a pénzügyeik rendben legyenek, és mindig tudják, hol tartanak.",
+      "Nálunk nem egy ügyintéző vagy a sok közül: állandó kapcsolattartót kapsz, aki ismeri a vállalkozásodat."
+    ],
+    lista: ["Mérlegképes könyvelők", "Regisztrált adótanácsadó", "Felelősségbiztosítás", "Online ügyintézés"]
+  },
+
+  // --- Vélemények (MINTA – cseréld valódira!) ---
+  velemenyek: {
+    mutat: true,
+    cim: "Ügyfeleink mondták",
+    elemek: [
+      { szoveg: "Mintaszöveg: Végre nem nekem kell figyelnem a határidőkre. Minden hónapban pontosan tudom, hol tart a cégem.", nev: "Minta Ügyfél", szerep: "kávézótulajdonos" },
+      { szoveg: "Mintaszöveg: Gyorsan válaszolnak, érthetően magyaráznak, és az átállás teljesen zökkenőmentes volt.", nev: "Minta Ügyfél", szerep: "webfejlesztő, egyéni vállalkozó" }
+    ]
+  },
+
+  // --- GYIK ---
+  gyik: {
+    mutat: true,
+    cim: "Gyakori kérdések",
+    elemek: [
+      { k: "Mennyibe kerül a könyvelés?", v: "A havidíj a cégformától, a bizonylatok számától és a dolgozók létszámától függ. Az első konzultáció után pontos, fix ajánlatot adunk." },
+      { k: "Át tudtok venni egy másik könyvelőtől?", v: "Igen, az átállást teljes egészében mi intézzük, akár év közben is." },
+      { k: "Személyesen kell bejárnom?", v: "Nem szükséges – a bizonylatokat online is küldheted, és videóhívásban is egyeztethetünk." }
+    ]
+  },
+
+  // --- Kapcsolat ---
+  kapcsolat: {
+    cim: "Beszéljünk!",
+    szoveg: "Írj nekünk, és egy munkanapon belül visszajelzünk.",
+    telefon: "+36 30 123 4567",
+    email: "hello@pelda.hu",
+    cim2: "1052 Budapest, Minta utca 1.",
+    terkepLink: "",                        // Google Maps link (opcionális)
+    nyitvatartas: "Hétfő–Péntek 9:00–17:00",
+    urlapTargy: "Új érdeklődés a weboldalról",
+    // Web3Forms kulcs – ügyfelenként cseréld az ügyfél saját kulcsára (web3forms.com)
+    web3formsKulcs: "f8e65129-8029-4310-8348-f7d2f6f712f3"
+  }
+};
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #1f4ed8;
+    --ink: #111111;
+    --paper: #fafaf7;
+    --white: #ffffff;
+    --rule: #e3e3dd;
+    --muted: #6b6b65;
+    --max: 1200px;
+    --head: "Inter Tight", "Inter", system-ui, sans-serif;
+    --body: "Inter", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font: 16px/1.6 var(--body); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  h1, h2, h3 { font-family: var(--head); font-weight: 600; letter-spacing: -0.03em; line-height: 1.05; }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+  section { padding: 120px 0; border-top: 1px solid var(--rule); }
+  .label {
+    font: 500 12px/1 var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--muted);
+    display: flex; gap: 14px; align-items: center;
+  }
+  .label b { color: var(--accent); font-weight: 600; }
+  .sec-head { display: grid; grid-template-columns: 1fr 2fr; gap: 24px; margin-bottom: 64px; align-items: end; }
+  .sec-head h2 { font-size: clamp(34px, 5vw, 60px); }
+
+  /* --- Demó sáv --- */
+  .demo-bar { background: var(--accent); color: #fff; font-size: 13px; text-align: center; padding: 9px 16px; }
+  .demo-bar a { color: #fff; font-weight: 600; margin-left: 8px; white-space: nowrap; }
+  .demo-bar[hidden] { display: none; }
+
+  /* --- Header --- */
+  header { position: sticky; top: 0; z-index: 20; background: rgba(250,250,247,.88); backdrop-filter: blur(10px); border-bottom: 1px solid var(--rule); }
+  .nav { height: 72px; display: flex; align-items: center; justify-content: space-between; }
+  .brand { text-decoration: none; display: flex; align-items: baseline; gap: 10px; }
+  .brand strong { font: 700 20px var(--head); letter-spacing: -0.02em; }
+  .brand span { font-size: 13px; color: var(--muted); }
+  .brand i { width: 10px; height: 10px; background: var(--accent); display: inline-block; align-self: center; }
+  .links { display: flex; gap: 32px; align-items: center; font-size: 14px; }
+  .links a { text-decoration: none; color: var(--muted); }
+  .links a:hover { color: var(--ink); }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; background: var(--ink); color: #fff !important;
+    text-decoration: none; font: 500 15px var(--body); border: 0; cursor: pointer; transition: background .2s;
+  }
+  .btn:hover { background: var(--accent); }
+  .btn .arr { transition: transform .2s; }
+  .btn:hover .arr { transform: translateX(4px); }
+  .links .btn { padding: 10px 18px; font-size: 14px; }
+  .burger { display: none; background: none; border: 0; font-size: 24px; cursor: pointer; }
+
+  /* --- Hero --- */
+  .hero { padding: 120px 0 0; border-top: 0; }
+  .hero-grid { display: grid; grid-template-columns: 9fr 3fr; gap: 48px; align-items: end; }
+  .hero h1 { font-size: clamp(42px, 6.4vw, 92px); }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero-side p { color: var(--muted); font-size: 18px; margin-bottom: 28px; }
+  .facts { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 96px; border-top: 1px solid var(--ink); }
+  .facts div { padding: 20px 0; font-size: 14px; display: flex; gap: 10px; align-items: center; }
+  .facts div::before { content: ""; width: 6px; height: 6px; background: var(--accent); }
+
+  /* --- Számok --- */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); }
+  .stat { padding: 32px 24px 0 0; position: relative; }
+  .stat::before { content: ""; position: absolute; top: 0; left: 0; height: 2px; width: 0; background: var(--accent); transition: width 1.2s cubic-bezier(.2,.7,.2,1); }
+  .stat.in::before { width: calc(100% - 24px); }
+  .stat .n { font: 600 clamp(48px, 6vw, 84px)/1 var(--head); letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+  .stat .l { color: var(--muted); margin-top: 12px; font-size: 15px; }
+
+  /* --- Szolgáltatások --- */
+  .svc { border-top: 1px solid var(--ink); }
+  .svc-row {
+    display: grid; grid-template-columns: 80px 1fr 1.4fr 200px; gap: 24px; padding: 32px 0; border-bottom: 1px solid var(--rule);
+    position: relative; align-items: baseline; transition: padding .25s;
+  }
+  .svc-row::before { content: ""; position: absolute; left: 0; top: -1px; height: 2px; width: 0; background: var(--accent); transition: width .4s; }
+  .svc-row:hover::before { width: 100%; }
+  .svc-row:hover { padding-left: 12px; }
+  .svc-row .no { font: 500 14px var(--body); color: var(--accent); }
+  .svc-row h3 { font-size: 28px; }
+  .svc-row p { color: var(--muted); }
+  .svc-row .price { text-align: right; font-weight: 500; font-variant-numeric: tabular-nums; }
+
+  /* --- Kalkulátor --- */
+  .calc { background: var(--ink); color: #fff; border-top: 0; }
+  .calc .label { color: #9a9a94; }
+  .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+  .calc h2 { font-size: clamp(34px, 5vw, 60px); margin: 20px 0 16px; }
+  .calc .lead { color: #b5b5ae; margin-bottom: 48px; max-width: 460px; }
+  .field { margin-bottom: 36px; }
+  .field-top { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 15px; }
+  .field-top output { font-weight: 600; font-variant-numeric: tabular-nums; }
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 2px; background: #3a3a37; outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; background: var(--accent); border: 4px solid #fff; cursor: pointer; }
+  input[type=range]::-moz-range-thumb { width: 14px; height: 14px; background: var(--accent); border: 4px solid #fff; border-radius: 0; cursor: pointer; }
+  .result { border-left: 1px solid #3a3a37; padding-left: 64px; }
+  .result .big { white-space: nowrap; font: 600 clamp(40px, 5.6vw, 80px)/1 var(--head); letter-spacing: -0.04em; font-variant-numeric: tabular-nums; color: #fff; }
+  .result .big small { font-size: .4em; color: var(--accent); margin-left: 6px; filter: brightness(1.6); }
+  .result p { color: #b5b5ae; margin-top: 16px; font-size: 18px; }
+  .result .hours { margin-top: 32px; padding-top: 20px; border-top: 1px solid #3a3a37; display: flex; gap: 40px; font-size: 14px; color: #9a9a94; }
+  .result .hours strong { display: block; color: #fff; font: 600 28px var(--head); }
+  .result .note { font-size: 12px; margin-top: 24px; color: #7a7a74; }
+
+  /* --- Folyamat --- */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--ink); }
+  .step { padding: 32px 32px 0 0; }
+  .step + .step { padding-left: 32px; border-left: 1px solid var(--rule); }
+  .step .no { font: 600 64px/1 var(--head); color: var(--rule); letter-spacing: -0.04em; margin-bottom: 24px; transition: color .4s; }
+  .step:hover .no { color: var(--accent); }
+  .step h3 { font-size: 24px; margin-bottom: 10px; }
+  .step p { color: var(--muted); }
+
+  /* --- Rólunk --- */
+  .about { display: grid; grid-template-columns: 5fr 7fr; gap: 80px; }
+  .portrait { aspect-ratio: 4/5; background: var(--white); border: 1px solid var(--rule); position: relative; overflow: hidden; }
+  .portrait img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1); transition: filter .6s; }
+  .portrait:hover img { filter: grayscale(0); }
+  .mono { position: absolute; inset: 0; display: grid; place-items: center; font: 600 clamp(80px, 12vw, 160px)/1 var(--head); letter-spacing: -0.06em; color: var(--accent); }
+  .portrait::after { content: ""; position: absolute; left: 0; bottom: 0; width: 40%; height: 8px; background: var(--accent); }
+  .about h2 { font-size: clamp(34px, 5vw, 60px); margin: 20px 0 32px; }
+  .about p { font-size: 19px; margin-bottom: 20px; max-width: 620px; }
+  .creds { list-style: none; display: grid; grid-template-columns: 1fr 1fr; margin-top: 40px; border-top: 1px solid var(--ink); }
+  .creds li { padding: 16px 0; border-bottom: 1px solid var(--rule); font-size: 15px; display: flex; gap: 10px; }
+  .creds li::before { content: "✓"; color: var(--accent); font-weight: 600; }
+
+  /* --- Vélemények --- */
+  .quotes { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; }
+  .quote blockquote { font: 500 clamp(22px, 2.4vw, 30px)/1.3 var(--head); letter-spacing: -0.02em; }
+  .quote blockquote::before { content: "“"; display: block; font-size: 80px; line-height: .6; color: var(--accent); margin-bottom: 16px; }
+  .quote cite { display: block; margin-top: 24px; font-style: normal; font-size: 14px; color: var(--muted); }
+  .quote cite strong { color: var(--ink); font-weight: 500; }
+
+  /* --- GYIK --- */
+  .faq { border-top: 1px solid var(--ink); }
+  .faq details { border-bottom: 1px solid var(--rule); }
+  .faq summary { list-style: none; cursor: pointer; padding: 26px 0; display: flex; justify-content: space-between; gap: 24px; font: 500 20px var(--head); letter-spacing: -0.01em; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; color: var(--accent); font-size: 26px; line-height: 1; transition: transform .25s; }
+  .faq details[open] summary::after { transform: rotate(45deg); }
+  .faq details p { color: var(--muted); padding: 0 0 26px; max-width: 760px; }
+
+  /* --- Kapcsolat --- */
+  .contact-grid { display: grid; grid-template-columns: 5fr 7fr; gap: 80px; }
+  .contact h2 { font-size: clamp(44px, 7vw, 96px); margin: 20px 0 20px; }
+  .contact .lead { color: var(--muted); font-size: 18px; margin-bottom: 40px; }
+  .info { list-style: none; border-top: 1px solid var(--ink); }
+  .info li { padding: 16px 0; border-bottom: 1px solid var(--rule); display: grid; grid-template-columns: 120px 1fr; gap: 16px; font-size: 15px; }
+  .info li span { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: .1em; padding-top: 2px; }
+  .info a { text-decoration: none; border-bottom: 1px solid var(--rule); }
+  .info a:hover { border-color: var(--accent); }
+  form { display: grid; gap: 28px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  label { display: grid; gap: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+  input:not([type=range]):not([type=checkbox]), textarea {
+    border: 0; border-bottom: 1px solid var(--ink); background: transparent; padding: 10px 0; font: 18px var(--body); color: var(--ink);
+    border-radius: 0; outline: none; transition: border-color .2s;
+  }
+  input:focus, textarea:focus { border-color: var(--accent); }
+  textarea { min-height: 120px; resize: vertical; }
+  .consent { display: flex; gap: 10px; text-transform: none; letter-spacing: 0; font-size: 14px; align-items: flex-start; }
+  .consent input { margin-top: 3px; accent-color: var(--accent); }
+  .hp { position: absolute; left: -9999px; }
+  .msg { font-size: 15px; padding: 14px 0; border-top: 2px solid; display: none; }
+  .msg.ok { display: block; border-color: #15803d; color: #15803d; }
+  .msg.err { display: block; border-color: #b91c1c; color: #b91c1c; }
+
+  footer { border-top: 1px solid var(--rule); padding: 32px 0; font-size: 13px; color: var(--muted); }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  footer a { text-decoration: none; }
+  footer .credit strong { color: var(--ink); font-weight: 600; transition: color .2s; }
+  footer .credit:hover strong { color: var(--accent); }
+
+  /* --- Megjelenés-animáció --- */
+  .rv { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.7,.2,1); }
+  .rv.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .rv { opacity: 1; transform: none; transition: none; }
+    .stat::before { transition: none; }
+    html { scroll-behavior: auto; }
+  }
+
+  /* --- Mobil --- */
+  @media (max-width: 900px) {
+    section { padding: 80px 0; }
+    .hero { padding-top: 64px; }
+    .hero-grid, .sec-head, .calc-grid, .about, .contact-grid, .quotes { grid-template-columns: 1fr; gap: 40px; }
+    .stats { grid-template-columns: 1fr 1fr; row-gap: 40px; }
+    .svc-row { grid-template-columns: 48px 1fr; }
+    .svc-row p, .svc-row .price { grid-column: 2; text-align: left; }
+    .steps { grid-template-columns: 1fr; }
+    .step + .step { padding-left: 0; border-left: 0; border-top: 1px solid var(--rule); margin-top: 32px; }
+    .result { border-left: 0; padding-left: 0; border-top: 1px solid #3a3a37; padding-top: 40px; }
+    .facts { grid-template-columns: 1fr; margin-top: 56px; }
+    .facts div { border-bottom: 1px solid var(--rule); }
+    .portrait { max-width: 420px; }
+  }
+  @media (max-width: 640px) {
+    .wrap { padding: 0 16px; }
+    .burger { display: block; }
+    .links { display: none; position: absolute; top: 72px; left: 0; right: 0; background: var(--paper); flex-direction: column; align-items: flex-start; padding: 24px 16px; gap: 20px; border-bottom: 1px solid var(--rule); }
+    .links.open { display: flex; }
+    .row2, .creds { grid-template-columns: 1fr; }
+    .info li { grid-template-columns: 1fr; gap: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-bar" id="demo-bar" hidden>Ez egy <strong>Lydigital</strong> mintaoldal – a cég és az adatok kitaláltak. <a href="https://lydigital.hu/#sablonok">Ilyet szeretnék →</a></div>
+
+<header>
+  <div class="wrap nav">
+    <a href="#" class="brand"><i></i><strong id="brand-name"></strong><span id="brand-sub"></span></a>
+    <button class="burger" aria-label="Menü" onclick="document.querySelector('.links').classList.toggle('open')">☰</button>
+    <nav class="links" id="links" onclick="if(event.target.tagName==='A')this.classList.remove('open')"></nav>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<footer><div class="wrap"><span id="foot-left"></span><a class="credit" href="https://lydigital.hu/" target="_blank" rel="noopener">Designed by <strong>Lydigital</strong></a><a href="#">Vissza a tetejére ↑</a></div></footer>
+
+<script>
+(function () {
+  const C = CONFIG;
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const pad = n => String(n).padStart(2, "0");
+  const fmt = n => Math.round(n).toLocaleString("hu-HU").replace(/ /g, " ");
+  const on = s => s && s.mutat !== false;
+
+  /* --- Alapbeállítások: szín, cím, SEO --- */
+  document.documentElement.style.setProperty("--accent", C.szin);
+  document.title = C.seoCim;
+  document.querySelector('meta[name="description"]').setAttribute("content", C.seoLeiras);
+  if (C.demo) document.getElementById("demo-bar").hidden = false;
+  document.getElementById("brand-name").textContent = C.nev;
+  document.getElementById("brand-sub").textContent = C.alcim;
+  document.getElementById("foot-left").textContent = "© " + new Date().getFullYear() + " " + C.nev + " " + C.alcim;
+
+  const ld = {
+    "@context": "https://schema.org", "@type": C.tipus || "ProfessionalService",
+    name: (C.nev + " " + C.alcim).trim(), url: C.domain, description: C.seoLeiras,
+    telephone: C.kapcsolat.telefon, email: C.kapcsolat.email,
+    address: { "@type": "PostalAddress", streetAddress: C.kapcsolat.cim2, addressCountry: "HU" }
+  };
+  const graph = [ld];
+  if (on(C.gyik)) graph.push({ "@type": "FAQPage", mainEntity: C.gyik.elemek.map(f => ({ "@type": "Question", name: f.k, acceptedAnswer: { "@type": "Answer", text: f.v } })) });
+  const s = document.createElement("script"); s.type = "application/ld+json";
+  s.textContent = JSON.stringify({ "@context": "https://schema.org", "@graph": graph }); document.head.appendChild(s);
+
+  /* --- Szekciók --- */
+  let secNo = 0;
+  const label = t => `<div class="label"><b>${pad(++secNo)}</b>${esc(t)}</div>`;
+  const nav = [];
+  const html = [];
+
+  // Hero (utolsó szót kiemeljük márkaszínnel)
+  const words = C.hero.cim.trim().split(" ");
+  const last = words.pop();
+  html.push(`
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-grid">
+        <h1 class="rv">${esc(words.join(" "))} <em>${esc(last)}</em></h1>
+        <div class="hero-side rv">
+          <p>${esc(C.hero.szoveg)}</p>
+          <a class="btn" href="#kapcsolat">${esc(C.hero.gomb)} <span class="arr">→</span></a>
+        </div>
+      </div>
+      <div class="facts rv">${C.hero.tenyek.map(t => `<div>${esc(t)}</div>`).join("")}</div>
+    </div>
+  </section>`);
+
+  if (on(C.szamok)) html.push(`
+  <section style="border-top:0;padding-top:96px">
+    <div class="wrap stats">
+      ${C.szamok.elemek.map(e => `<div class="stat rv"><div class="n" data-to="${Number(e.szam) || 0}" data-suf="${esc(e.utotag)}">0${esc(e.utotag)}</div><div class="l">${esc(e.cimke)}</div></div>`).join("")}
+    </div>
+  </section>`);
+
+  nav.push(["szolgaltatasok", C.szolgaltatasok.cim]);
+  html.push(`
+  <section id="szolgaltatasok">
+    <div class="wrap">
+      <div class="sec-head">${label(C.szolgaltatasok.cim)}<h2 class="rv">${esc(C.szolgaltatasok.cim)}</h2></div>
+      <div class="svc">
+        ${C.szolgaltatasok.elemek.map((e, i) => `
+        <div class="svc-row rv"><span class="no">${pad(i + 1)}</span><h3>${esc(e.nev)}</h3><p>${esc(e.leiras)}</p><span class="price">${esc(e.ar)}</span></div>`).join("")}
+      </div>
+    </div>
+  </section>`);
+
+  if (on(C.kalkulator)) {
+    const k = C.kalkulator;
+    html.push(`
+  <section class="calc" id="kalkulator">
+    <div class="wrap calc-grid">
+      <div>
+        ${label("Kalkulátor")}
+        <h2>${esc(k.cim)}</h2>
+        <p class="lead">${esc(k.szoveg)}</p>
+        <div class="field">
+          <div class="field-top"><span>${esc(k.ora.cimke)}</span><output id="o-ora"></output></div>
+          <input type="range" id="r-ora" min="${k.ora.min}" max="${k.ora.max}" value="${k.ora.alap}" aria-label="${esc(k.ora.cimke)}">
+        </div>
+        <div class="field">
+          <div class="field-top"><span>${esc(k.ertek.cimke)}</span><output id="o-ertek"></output></div>
+          <input type="range" id="r-ertek" min="${k.ertek.min}" max="${k.ertek.max}" step="${k.ertek.lepes || 1}" value="${k.ertek.alap}" aria-label="${esc(k.ertek.cimke)}">
+        </div>
+      </div>
+      <div class="result">
+        <div class="big"><span id="res-ft">0</span><small>Ft</small></div>
+        <p>${esc(k.eredmenyCimke)}</p>
+        <div class="hours"><div><strong id="res-h">0</strong>óra / év</div><div><strong id="res-d">0</strong>munkanap / év</div></div>
+        <div class="note">${esc(k.megjegyzes)}</div>
+      </div>
+    </div>
+  </section>`);
+  }
+
+  if (on(C.folyamat)) {
+    nav.push(["folyamat", C.folyamat.cim]);
+    html.push(`
+  <section id="folyamat">
+    <div class="wrap">
+      <div class="sec-head">${label(C.folyamat.cim)}<h2 class="rv">${esc(C.folyamat.cim)}</h2></div>
+      <div class="steps">${C.folyamat.lepesek.map((l, i) => `<div class="step rv"><div class="no">${pad(i + 1)}</div><h3>${esc(l.cim)}</h3><p>${esc(l.szoveg)}</p></div>`).join("")}</div>
+    </div>
+  </section>`);
+  }
+
+  if (on(C.rolunk)) {
+    nav.push(["rolunk", C.rolunk.cim]);
+    const mono = C.nev.split(/[\s&]+/).filter(Boolean).map(w => w[0]).slice(0, 2).join("");
+    html.push(`
+  <section id="rolunk">
+    <div class="wrap about">
+      <div class="portrait rv">${C.rolunk.kep ? `<img src="${esc(C.rolunk.kep)}" alt="${esc(C.nev)}" loading="lazy">` : `<div class="mono">${esc(mono)}</div>`}</div>
+      <div>
+        ${label(C.rolunk.cim)}
+        <h2 class="rv">${esc(C.nev)} ${esc(C.alcim)}</h2>
+        ${C.rolunk.szoveg.map(p => `<p class="rv">${esc(p)}</p>`).join("")}
+        <ul class="creds rv">${C.rolunk.lista.map(l => `<li>${esc(l)}</li>`).join("")}</ul>
+      </div>
+    </div>
+  </section>`);
+  }
+
+  if (on(C.velemenyek)) html.push(`
+  <section>
+    <div class="wrap">
+      <div class="sec-head">${label(C.velemenyek.cim)}<h2 class="rv">${esc(C.velemenyek.cim)}</h2></div>
+      <div class="quotes">${C.velemenyek.elemek.map(v => `<figure class="quote rv"><blockquote>${esc(v.szoveg)}</blockquote><cite><strong>${esc(v.nev)}</strong> · ${esc(v.szerep)}</cite></figure>`).join("")}</div>
+    </div>
+  </section>`);
+
+  if (on(C.gyik)) {
+    nav.push(["gyik", "GYIK"]);
+    html.push(`
+  <section id="gyik">
+    <div class="wrap">
+      <div class="sec-head">${label("GYIK")}<h2 class="rv">${esc(C.gyik.cim)}</h2></div>
+      <div class="faq">${C.gyik.elemek.map((f, i) => `<details${i === 0 ? " open" : ""}><summary>${esc(f.k)}</summary><p>${esc(f.v)}</p></details>`).join("")}</div>
+    </div>
+  </section>`);
+  }
+
+  const K = C.kapcsolat;
+  const tel = K.telefon ? `<li><span>Telefon</span><a href="tel:${esc(K.telefon.replace(/\s/g, ""))}">${esc(K.telefon)}</a></li>` : "";
+  const mail = K.email ? `<li><span>E-mail</span><a href="mailto:${esc(K.email)}">${esc(K.email)}</a></li>` : "";
+  const addr = K.cim2 ? `<li><span>Cím</span>${K.terkepLink ? `<a href="${esc(K.terkepLink)}" target="_blank" rel="noopener">${esc(K.cim2)}</a>` : esc(K.cim2)}</li>` : "";
+  const hours = K.nyitvatartas ? `<li><span>Nyitva</span>${esc(K.nyitvatartas)}</li>` : "";
+  html.push(`
+  <section class="contact" id="kapcsolat">
+    <div class="wrap contact-grid">
+      <div>
+        ${label("Kapcsolat")}
+        <h2 class="rv">${esc(K.cim)}</h2>
+        <p class="lead">${esc(K.szoveg)}</p>
+        <ul class="info">${tel}${mail}${addr}${hours}</ul>
+      </div>
+      <form id="form" action="https://api.web3forms.com/submit" method="POST">
+        <input type="hidden" name="access_key" value="${esc(K.web3formsKulcs)}">
+        <input type="hidden" name="subject" value="${esc(K.urlapTargy + " – " + C.nev)}">
+        <input type="hidden" name="from_name" value="${esc(C.nev + " weboldal")}">
+        <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off">
+        <div class="row2">
+          <label>Név *<input type="text" name="Név" required autocomplete="name"></label>
+          <label>E-mail *<input type="email" name="email" required autocomplete="email"></label>
+        </div>
+        <div class="row2">
+          <label>Telefon<input type="tel" name="Telefon" autocomplete="tel"></label>
+          <label>Cégnév<input type="text" name="Cég" autocomplete="organization"></label>
+        </div>
+        <label>Üzenet *<textarea name="Üzenet" required></textarea></label>
+        <label class="consent"><input type="checkbox" required> Hozzájárulok, hogy adataimat a kapcsolatfelvétel céljából kezeljék.</label>
+        <div><button class="btn" type="submit" id="send">Üzenet küldése <span class="arr">→</span></button></div>
+        <div class="msg" id="msg" role="status"></div>
+      </form>
+    </div>
+  </section>`);
+
+  document.getElementById("app").innerHTML = html.join("");
+  document.getElementById("links").innerHTML =
+    nav.map(([id, t]) => `<a href="#${id}">${esc(t)}</a>`).join("") + `<a class="btn" href="#kapcsolat">Kapcsolat</a>`;
+
+  /* --- Megjelenés-animáció + számláló --- */
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function countUp(el) {
+    const to = +el.dataset.to, suf = el.dataset.suf || "";
+    if (reduce || to === 0) { el.textContent = fmt(to) + suf; return; }
+    const t0 = performance.now(), dur = 1400;
+    (function tick(t) {
+      const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = fmt(to * e) + suf;
+      if (p < 1) requestAnimationFrame(tick);
+    })(t0);
+  }
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add("in");
+      const n = e.target.querySelector && e.target.querySelector(".n[data-to]");
+      if (n) countUp(n);
+      io.unobserve(e.target);
+    }), { threshold: 0.15 });
+    document.querySelectorAll(".rv, .stat").forEach(el => io.observe(el));
+  } else {
+    document.querySelectorAll(".rv, .stat").forEach(el => el.classList.add("in"));
+    document.querySelectorAll(".n[data-to]").forEach(countUp);
+  }
+
+  /* --- Kalkulátor --- */
+  if (on(C.kalkulator)) {
+    const k = C.kalkulator;
+    const rO = document.getElementById("r-ora"), rE = document.getElementById("r-ertek");
+    const oO = document.getElementById("o-ora"), oE = document.getElementById("o-ertek");
+    const resFt = document.getElementById("res-ft"), resH = document.getElementById("res-h"), resD = document.getElementById("res-d");
+    let shown = 0, anim = null;
+    function update() {
+      const h = +rO.value, v = +rE.value;
+      oO.textContent = h + " " + k.ora.egyseg;
+      oE.textContent = fmt(v) + " " + k.ertek.egyseg;
+      const yearH = h * 12 * k.megtakaritas, target = yearH * v;
+      resH.textContent = fmt(yearH);
+      resD.textContent = fmt(yearH / 8);
+      cancelAnimationFrame(anim);
+      const from = shown, t0 = performance.now();
+      (function tick(t) {
+        const p = reduce ? 1 : Math.min(1, (t - t0) / 400);
+        shown = from + (target - from) * (1 - Math.pow(1 - p, 3));
+        resFt.textContent = fmt(shown);
+        if (p < 1) anim = requestAnimationFrame(tick);
+      })(t0);
+    }
+    rO.addEventListener("input", update); rE.addEventListener("input", update); update();
+  }
+
+  /* --- Űrlap (Web3Forms) --- */
+  document.getElementById("form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const f = e.target, b = document.getElementById("send"), m = document.getElementById("msg");
+    b.disabled = true; m.className = "msg";
+    try {
+      const fd = new FormData(f); fd.set("replyto", fd.get("email") || "");
+      const r = await fetch(f.action, { method: "POST", headers: { Accept: "application/json" }, body: fd });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok || !d.success) throw new Error(d.message || "HTTP " + r.status);
+      f.reset(); m.className = "msg ok"; m.textContent = "Köszönjük! Hamarosan jelentkezünk.";
+    } catch (err) {
+      m.className = "msg err"; m.textContent = "Hiba történt a küldés közben. Kérjük, próbáld újra, vagy hívj minket telefonon.";
+    } finally { b.disabled = false; }
+  });
+})();
+</script>
+</body>
+</html>
