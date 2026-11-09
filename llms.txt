@@ -1,0 +1,16 @@
+# Lydigital
+
+> Lydigital: weboldal és landing oldal készítés, valamint egyedi webes alkalmazások (CRM, foglalási rendszer, chatbot) fejlesztése kis- és középvállalkozásoknak. Online együttműködés az egész Magyarországon, külföldi és angol nyelvű megbízásokat is vállal.
+
+## Szolgáltatások
+- Bemutatkozó és landing oldalak: 100 000 Ft-tól, jellemzően néhány nap alatt.
+- Egyedi webes alkalmazások, CRM, foglalási rendszerek: 300 000 Ft-tól, jellemzően 2–4 hét.
+- Átadás után: betanítás, 14 napos díjmentes hibajavítás, opcionális havidíjas karbantartás, domain- és tárhelybeállítás.
+
+## Referenciák
+- Albatrosz – interaktív hajónapló: https://pixel-perfect-page-989.lovable.app/
+- Kicsicipő – cipőbolt weboldala: https://www.kicsicipo.hu/
+- WordPress-be integrálható chatbot: https://nvnchatbot.lovable.app
+
+## Kapcsolat
+- Ajánlatkérés: https://lydigital.hu/#kapcsolat
