@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Betöltés…</title>
+<meta name="description" content="">
+
+<script>
+/* ==========================================================================
+   ÜGYFÉLADATOK – CSAK EZT A RÉSZT KELL SZERKESZTENI
+   --------------------------------------------------------------------------
+   Minden szöveg, szín, szoba, szezon, foglaltság és elérhetőség innen jön.
+   FONTOS: a "velemenyek" itt mintaszövegek – élesítés előtt cseréld le
+   valódi vendégvéleményekre, vagy kapcsold ki a szekciót.
+   ========================================================================== */
+const CONFIG = {
+  // DEMÓ mód: true = felül megjelenik a "Lydigital mintaoldal" sáv. Ügyfélnél: false!
+  demo: true,
+
+  // --- Alapadatok ---
+  nev: "Hársliget",
+  alcim: "Vendégház",
+  hely: "Balatonfüred",
+  domain: "https://pelda.hu/",
+  szin: "#1f4e5f",                         // fő szín (tóvíz)
+  szin2: "#c98b4b",                        // kiemelés (naplemente)
+  seoCim: "Hársliget Vendégház – apartmanok Balatonfüreden, panorámával",
+  seoLeiras: "Családias vendégház Balatonfüreden, 3 apartmannal, kerttel és balatoni panorámával. Nézd meg a szabad időpontokat, és kérj ajánlatot közvetlenül!",
+  ntak: "MA00000000 (minta)",              // NTAK regisztrációs szám – kötelező feltüntetni!
+
+  // --- Nyitórész ---
+  hero: {
+    felirat: "Vendégház a Balaton-felvidéken",
+    cim: "Ahol a nap a *tóba* bukik.",       // *csillagok közé* = kiemelt szó
+    szoveg: "Három nyugodt apartman, kert diófával, és egy terasz, ahonnan minden este más színű a Balaton.",
+    napszakCsuszka: true                    // a nyitókép alatt csúszkával végig lehet nézni a napszakokat
+  },
+
+  // --- Szobák / apartmanok ---  alapAr: Ft / éj (előszezonban; a szezon szorzója módosítja)
+  szobak: [
+    { nev: "Diófa apartman", fo: "2–3 fő", meret: "38 m²", agy: "Franciaágy + kanapé", alapAr: 28000, extra: ["Saját terasz", "Kertre néz"] },
+    { nev: "Panoráma apartman", fo: "2 fő", meret: "32 m²", agy: "Franciaágy", alapAr: 34000, extra: ["Balatoni panoráma", "Erkély"], kiemelt: true },
+    { nev: "Családi apartman", fo: "4–5 fő", meret: "56 m²", agy: "2 hálószoba", alapAr: 42000, extra: ["Két fürdőszoba", "Gyerekbarát"] }
+  ],
+
+  // --- Szezonok (HH-NN formában, az év bármely napjára legyen szezon) ---
+  szezonok: [
+    { nev: "Téli szezon", tol: "11-01", ig: "03-31", szorzo: 0.85, szin: "#9fb4c3" },
+    { nev: "Előszezon", tol: "04-01", ig: "06-14", szorzo: 1.0, szin: "#a9c49b" },
+    { nev: "Főszezon", tol: "06-15", ig: "08-31", szorzo: 1.35, szin: "#e0a35c" },
+    { nev: "Utószezon", tol: "09-01", ig: "10-31", szorzo: 1.0, szin: "#c9a27a" }
+  ],
+  minEj: 2,
+
+  // --- Foglaltság a naptárhoz (érkezés, távozás – a távozás napja már szabad) ---
+  foglalasok: [ ["2026-12-23", "2026-12-27"], ["2026-12-30", "2027-01-02"] ],
+  demoFoglalasok: true,                    // demóban véletlenszerű foglaltságot is mutat – ügyfélnél: false
+
+  // --- Kényelmi szolgáltatások ---
+  kenyelem: [
+    ["📶", "Gyors Wi-Fi"], ["🅿️", "Ingyenes parkolás"], ["🌳", "Nagy kert"], ["🔥", "Grillező"],
+    ["❄️", "Klíma"], ["🍳", "Felszerelt konyha"], ["🚲", "Kerékpártároló"], ["🐾", "Kisállat kérésre"]
+  ],
+
+  // --- Környék ---
+  kornyek: {
+    cim: "A környéken",
+    elemek: [
+      { nev: "Szabadstrand", tav: "600 m", leiras: "Gyalog 8 perc, árnyas fákkal." },
+      { nev: "Tagore sétány", tav: "1,2 km", leiras: "Esti séta a móló felé, fagyizókkal." },
+      { nev: "Tihanyi-félsziget", tav: "11 km", leiras: "Levendulamezők és apátság." },
+      { nev: "Pincészetek", tav: "3–8 km", leiras: "Borkóstolók a Balaton-felvidéken." }
+    ]
+  },
+
+  // --- Képek (üresen színátmenetes helyőrző) ---
+  kepek: [
+    { kep: "", felirat: "A terasz naplementekor", szinek: ["#f2c18d", "#c3684a"] },
+    { kep: "", felirat: "Panoráma apartman", szinek: ["#dfe7e8", "#8fb0b8"] },
+    { kep: "", felirat: "Reggeli a kertben", szinek: ["#e6efd8", "#8fae7a"] }
+  ],
+
+  // --- Vélemények (MINTA – cseréld valódira!) ---
+  velemenyek: {
+    mutat: true,
+    elemek: [
+      { szoveg: "Mintaszöveg: A teraszról nézett naplementékért visszajövünk jövőre is.", nev: "Minta Vendég", pont: "10/10" },
+      { szoveg: "Mintaszöveg: Tisztaság, csend, kedves házigazdák – pont amire szükségünk volt.", nev: "Minta Vendég", pont: "9,8/10" }
+    ]
+  },
+
+  // --- Kapcsolat ---
+  kapcsolat: {
+    cim: "Kérj ajánlatot közvetlenül",
+    szoveg: "Közvetlen foglalás esetén nincs közvetítői díj. Írd meg az időpontot, és 24 órán belül válaszolunk.",
+    telefon: "+36 30 123 4567",
+    email: "hello@pelda.hu",
+    cim2: "8230 Balatonfüred, Minta utca 5.",
+    terkepLink: "",
+    urlapTargy: "Új ajánlatkérés a weboldalról",
+    web3formsKulcs: "f8e65129-8029-4310-8348-f7d2f6f712f3"   // ügyfélnél: az ügyfél saját kulcsa
+  }
+};
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Karla:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #1f4e5f; --warm: #c98b4b;
+    --bg: #f6f1e8; --card: #fffcf6; --ink: #1d2a30; --muted: #6c757a; --line: #e4dccd;
+    --serif: "Playfair Display", Georgia, serif; --sans: "Karla", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--ink); font: 400 17px/1.7 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  a { color: inherit; }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 500; line-height: 1.1; }
+  em { font-style: italic; color: var(--warm); }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; position: relative; }
+  section { padding: 110px 0; position: relative; }
+  .kicker { font: 600 12px var(--sans); letter-spacing: .22em; text-transform: uppercase; color: var(--warm); }
+  .head { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: end; margin-bottom: 52px; }
+  .head h2 { font-size: clamp(38px, 5vw, 64px); margin-top: 10px; }
+  .head p { color: var(--muted); }
+  .btn { display: inline-flex; align-items: center; gap: 10px; padding: 15px 28px; border: 0; background: var(--accent); color: #fff; font: 600 15px var(--sans); letter-spacing: .04em; text-decoration: none; cursor: pointer; transition: background .25s; }
+  .btn:hover { background: color-mix(in srgb, var(--accent) 80%, #000); }
+  .btn.warm { background: var(--warm); } .btn.warm:hover { background: color-mix(in srgb, var(--warm) 85%, #000); }
+
+  .demo-bar { background: var(--ink); color: #fff; font-size: 13px; text-align: center; padding: 9px 16px; }
+  .demo-bar a { color: var(--warm); font-weight: 600; margin-left: 8px; white-space: nowrap; }
+  .demo-bar[hidden] { display: none; }
+
+  header { position: absolute; left: 0; right: 0; z-index: 20; color: #fff; }
+  .nav { height: 84px; display: flex; align-items: center; justify-content: space-between; }
+  .brand { text-decoration: none; }
+  .brand strong { font: 600 26px var(--serif); display: block; line-height: 1; }
+  .brand span { font-size: 12px; letter-spacing: .2em; text-transform: uppercase; opacity: .8; }
+  .links { display: flex; gap: 28px; align-items: center; font-size: 15px; font-weight: 500; }
+  .links a { text-decoration: none; opacity: .9; } .links a:hover { opacity: 1; }
+  .links .btn { background: #ffffff22; backdrop-filter: blur(8px); border: 1px solid #ffffff55; padding: 10px 18px; }
+  .burger { display: none; background: none; border: 0; color: #fff; font-size: 26px; cursor: pointer; }
+  .stick { position: fixed; top: 0; background: color-mix(in srgb, var(--bg) 90%, transparent); color: var(--ink); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); animation: slidedown .4s; }
+  .stick .links .btn { background: var(--accent); color: #fff; border-color: transparent; }
+  .stick .burger { color: var(--ink); }
+  @keyframes slidedown { from { transform: translateY(-100%); } }
+
+  /* --- Napszakfüggő nyitókép --- */
+  .hero { position: relative; min-height: 100svh; color: #fff; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 0 110px; }
+  .scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .scene .sky { transition: none; }
+  .scene .stars circle { fill: #fff; }
+  .scene .win { transition: fill .6s; }
+  .hero-shade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(10,20,25,.55)); pointer-events: none; }
+  .hero .wrap { position: relative; z-index: 2; width: 100%; }
+  .hero h1 { font-size: clamp(48px, 7.4vw, 104px); max-width: 900px; margin: 14px 0 20px; text-shadow: 0 2px 30px rgba(0,0,0,.25); }
+  .hero h1 em { color: inherit; }
+  .hero p { font-size: 19px; max-width: 560px; opacity: .92; }
+  .clock { display: inline-flex; align-items: center; gap: 10px; padding: 7px 14px; border-radius: 999px; background: #ffffff1f; border: 1px solid #ffffff40; backdrop-filter: blur(8px); font-size: 14px; }
+  .slider { margin-top: 34px; display: flex; align-items: center; gap: 14px; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; max-width: 520px; }
+  .slider input { flex: 1; -webkit-appearance: none; appearance: none; height: 2px; background: #ffffff66; outline: none; }
+  .slider input::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 6px #ffffff33; cursor: grab; }
+  .slider input::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 0; cursor: grab; }
+  .slider button { background: none; border: 1px solid #ffffff66; color: #fff; padding: 5px 12px; border-radius: 999px; font: 500 12px var(--sans); cursor: pointer; letter-spacing: .06em; }
+
+  /* --- Foglalási sáv --- */
+  .bookbar { position: relative; z-index: 5; margin-top: -46px; }
+  .bookbar form { background: var(--card); box-shadow: 0 30px 60px -30px rgba(20,40,50,.35); display: grid; grid-template-columns: 1fr 1fr 1.2fr .8fr auto; align-items: stretch; border: 1px solid var(--line); }
+  .bookbar label { display: grid; gap: 2px; padding: 16px 20px; border-right: 1px solid var(--line); font: 600 11px var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .bookbar input, .bookbar select { border: 0; background: transparent; font: 500 17px var(--sans); color: var(--ink); outline: none; padding: 2px 0; width: 100%; }
+  .bookbar .btn { height: 100%; padding: 0 30px; }
+  .estimate { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 14px 4px 0; font-size: 15px; color: var(--muted); min-height: 38px; }
+  .estimate b { color: var(--ink); font: 600 20px var(--serif); }
+  .estimate .warn { color: #b4532d; }
+
+  /* --- Szezon sáv + naptár --- */
+  .season-bar { display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px; margin: 10px 0 8px; position: relative; }
+  .season-bar div { height: 36px; display: grid; place-items: center; font-size: 12px; color: #1d2a30cc; font-weight: 600; }
+  .season-bar .now { position: absolute; top: -10px; bottom: -10px; width: 2px; background: var(--ink); }
+  .season-bar .now::after { content: "ma"; position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 12px; font-weight: 600; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; font-size: 14px; color: var(--muted); margin-bottom: 40px; }
+  .legend i { display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: -1px; }
+  .cals { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .cal { background: var(--card); border: 1px solid var(--line); padding: 26px; }
+  .cal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .cal-head h3 { font-size: 24px; }
+  .cal-head button { background: none; border: 1px solid var(--line); width: 36px; height: 36px; cursor: pointer; font-size: 16px; color: var(--ink); }
+  .grid7 { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; text-align: center; }
+  .grid7 .dn { font-size: 12px; color: var(--muted); font-weight: 600; padding-bottom: 6px; }
+  .day { aspect-ratio: 1; display: grid; place-items: center; font-size: 14px; border: 0; background: transparent; color: var(--ink); cursor: pointer; position: relative; font-family: var(--sans); }
+  .day:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .day.booked { color: #b9b2a5; text-decoration: line-through; cursor: not-allowed; background: repeating-linear-gradient(135deg, transparent 0 5px, #e9e2d5 5px 6px); }
+  .day.past { color: #cfc8bc; cursor: default; }
+  .day.today { outline: 1px solid var(--ink); }
+  .day.sel { background: var(--accent); color: #fff; }
+  .day.inrange { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+  .day::after { content: ""; position: absolute; bottom: 4px; left: 50%; width: 4px; height: 4px; border-radius: 50%; transform: translateX(-50%); background: var(--sc, transparent); }
+  .cal-note { font-size: 14px; color: var(--muted); margin-top: 16px; }
+
+  /* --- Szobák --- */
+  .rooms { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .room { background: var(--card); border: 1px solid var(--line); display: flex; flex-direction: column; transition: transform .4s, box-shadow .4s; }
+  .room:hover { transform: translateY(-6px); box-shadow: 0 30px 50px -30px rgba(20,40,50,.4); }
+  .room .ph { aspect-ratio: 4/3; background: var(--g); background-size: cover; background-position: center; position: relative; }
+  .room .badge { position: absolute; top: 14px; left: 14px; background: var(--warm); color: #fff; font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; padding: 5px 10px; }
+  .room-body { padding: 26px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+  .room h3 { font-size: 27px; }
+  .specs { display: flex; gap: 14px; flex-wrap: wrap; font-size: 14px; color: var(--muted); }
+  .specs span + span::before { content: "·"; margin-right: 14px; }
+  .room ul { list-style: none; font-size: 15px; display: grid; gap: 4px; flex: 1; }
+  .room li::before { content: "— "; color: var(--warm); }
+  .room .price { display: flex; justify-content: space-between; align-items: end; border-top: 1px solid var(--line); padding-top: 14px; }
+  .room .price b { font: 600 24px var(--serif); }
+  .room .price small { color: var(--muted); font-size: 13px; }
+  .room .price button { background: none; border: 0; color: var(--accent); font: 600 14px var(--sans); cursor: pointer; text-decoration: underline; }
+
+  /* --- Kényelem --- */
+  .amen { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+  .amen div { padding: 26px 22px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); display: flex; gap: 14px; align-items: center; font-weight: 500; }
+  .amen span { font-size: 26px; }
+
+  /* --- Képek + környék (editorial) --- */
+  .gallery { display: grid; grid-template-columns: 1.4fr 1fr; grid-template-rows: 1fr 1fr; gap: 16px; height: min(70vh, 640px); }
+  .gallery figure { position: relative; overflow: hidden; background: var(--g); background-size: cover; background-position: center; }
+  .gallery figure:first-child { grid-row: span 2; }
+  .gallery figcaption { position: absolute; left: 18px; bottom: 16px; color: #fff; font: italic 500 20px var(--serif); text-shadow: 0 1px 12px rgba(0,0,0,.35); }
+  .area { display: grid; grid-template-columns: .9fr 1.1fr; gap: 60px; align-items: start; }
+  .area h2 { font-size: clamp(38px, 5vw, 64px); margin-top: 10px; }
+  .area ol { list-style: none; counter-reset: a; }
+  .area li { counter-increment: a; display: grid; grid-template-columns: 50px 1fr auto; gap: 14px; padding: 20px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+  .area li::before { content: counter(a, decimal-leading-zero); font: italic 500 18px var(--serif); color: var(--warm); }
+  .area li b { font: 500 22px var(--serif); display: block; }
+  .area li span { color: var(--muted); font-size: 15px; }
+  .area li i { font-style: normal; font-weight: 600; white-space: nowrap; }
+
+  /* --- Vélemények --- */
+  .reviews { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  .review blockquote { font: italic 500 clamp(22px, 2.4vw, 30px)/1.4 var(--serif); }
+  .review cite { display: flex; gap: 14px; align-items: center; margin-top: 18px; font-style: normal; color: var(--muted); font-size: 14px; }
+  .review cite b { background: var(--accent); color: #fff; padding: 4px 10px; font-size: 13px; }
+
+  /* --- Kapcsolat --- */
+  .contact { background: var(--accent); color: #fff; }
+  .contact-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 60px; }
+  .contact h2 { font-size: clamp(38px, 5vw, 62px); margin: 10px 0 18px; }
+  .contact .lead { opacity: .85; margin-bottom: 28px; }
+  .contact .kicker { color: color-mix(in srgb, var(--warm) 70%, #fff); }
+  .info { list-style: none; display: grid; gap: 10px; }
+  .info a { text-decoration: none; border-bottom: 1px solid #ffffff55; }
+  .info small { display: block; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; opacity: .65; }
+  form.req { background: var(--card); color: var(--ink); padding: 36px; display: grid; gap: 16px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  form.req label { display: grid; gap: 6px; font: 600 12px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  form.req input:not([type=checkbox]), form.req select, form.req textarea { border: 1px solid var(--line); background: #fff; padding: 12px 14px; font: 400 16px var(--sans); color: var(--ink); outline: none; }
+  form.req input:focus, form.req select:focus, form.req textarea:focus { border-color: var(--accent); }
+  form.req textarea { min-height: 100px; resize: vertical; }
+  .consent { display: flex; gap: 10px; align-items: flex-start; text-transform: none !important; letter-spacing: 0 !important; font-weight: 400 !important; }
+  .consent input { accent-color: var(--accent); margin-top: 4px; }
+  .hp { position: absolute; left: -9999px; }
+  .msg { display: none; padding: 12px 14px; font-size: 15px; }
+  .msg.ok { display: block; background: #e3efe6; color: #1f5c3a; } .msg.err { display: block; background: #fbe4dc; color: #8a2f14; }
+
+  footer { background: var(--ink); color: #b9c2c6; font-size: 13px; padding: 26px 0 34px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  footer a { text-decoration: none; }
+  footer .credit strong { color: #fff; transition: color .2s; } footer .credit:hover strong { color: var(--warm); }
+
+  .rv { opacity: 0; transform: translateY(26px); transition: opacity 1s, transform 1s cubic-bezier(.2,.8,.2,1); }
+  .rv.in { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } .rv { opacity: 1; transform: none; } }
+  @media (max-width: 960px) {
+    section { padding: 80px 0; }
+    .head, .area, .contact-grid, .reviews { grid-template-columns: 1fr; gap: 28px; }
+    .bookbar form { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+    .bookbar label { min-width: 0; padding: 12px 14px; }
+    .bookbar label { border-bottom: 1px solid var(--line); }
+    .bookbar .btn { grid-column: 1 / -1; padding: 18px; justify-content: center; }
+    .cals, .rooms { grid-template-columns: minmax(0, 1fr); }
+    .amen { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+    .amen div { padding: 18px 14px; gap: 10px; font-size: 15px; min-width: 0; }
+    .gallery { grid-template-columns: 1fr 1fr; height: auto; grid-template-rows: auto; }
+    .gallery figure { aspect-ratio: 4/3; } .gallery figure:first-child { grid-column: 1 / -1; grid-row: auto; }
+    .season-bar div { font-size: 10px; }
+  }
+  @media (max-width: 640px) {
+    .wrap { padding: 0 16px; }
+    .burger { display: block; }
+    .links { display: none; position: absolute; top: 84px; left: 0; right: 0; background: var(--bg); color: var(--ink); flex-direction: column; align-items: flex-start; padding: 24px 16px; gap: 18px; }
+    .links.open { display: flex; }
+    .links .btn { background: var(--accent); color: #fff; }
+    .row2 { grid-template-columns: 1fr; }
+    form.req { padding: 22px; }
+    .cal { padding: 16px; }
+    .season-bar div { font-size: 0; }
+    .area li { grid-template-columns: 34px 1fr; } .area li i { grid-column: 2; }
+  }
+</style>
+</head>
+<body>
+
+<div class="demo-bar" id="demo-bar" hidden>Ez egy <strong>Lydigital</strong> mintaoldal – a szállás és az adatok kitaláltak. <a href="https://lydigital.hu/#sablonok">Ilyet szeretnék →</a></div>
+
+<header id="hdr">
+  <div class="wrap nav">
+    <a href="#" class="brand"><strong id="brand-name"></strong><span id="brand-sub"></span></a>
+    <button class="burger" aria-label="Menü" onclick="document.querySelector('.links').classList.toggle('open')">☰</button>
+    <nav class="links" id="links" onclick="if(event.target.tagName==='A')this.classList.remove('open')"></nav>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<footer><div class="wrap"><span id="foot-left"></span><a class="credit" href="https://lydigital.hu/" target="_blank" rel="noopener">Designed by <strong>Lydigital</strong></a><a href="#">Vissza a tetejére ↑</a></div></footer>
+
+<script>
+(function () {
+  const C = CONFIG, K = C.kapcsolat, R = C.szobak;
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const on = s => s && s.mutat !== false;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const ft = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " Ft";
+  const HONAP = ["január", "február", "március", "április", "május", "június", "július", "augusztus", "szeptember", "október", "november", "december"];
+  const HO3 = ["jan", "feb", "már", "ápr", "máj", "jún", "júl", "aug", "szep", "okt", "nov", "dec"];
+  const iso = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  const parse = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+  const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+
+  document.documentElement.style.setProperty("--accent", C.szin);
+  document.documentElement.style.setProperty("--warm", C.szin2);
+  document.title = C.seoCim;
+  document.querySelector('meta[name="description"]').setAttribute("content", C.seoLeiras);
+  if (C.demo) document.getElementById("demo-bar").hidden = false;
+  document.getElementById("brand-name").textContent = C.nev;
+  document.getElementById("brand-sub").textContent = C.alcim + " · " + C.hely;
+  document.getElementById("foot-left").textContent = "© " + new Date().getFullYear() + " " + C.nev + " " + C.alcim + " · NTAK: " + C.ntak;
+
+  /* --- Szezon és ár --- */
+  const md = d => String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  const seasonOf = d => { const k = md(d); return C.szezonok.find(s => s.tol <= s.ig ? (k >= s.tol && k <= s.ig) : (k >= s.tol || k <= s.ig)) || C.szezonok[0]; };
+
+  /* --- Foglaltság --- */
+  const booked = new Set();
+  C.foglalasok.forEach(([a, b]) => { for (let d = parse(a); d < parse(b); d = addDays(d, 1)) booked.add(iso(d)); });
+  if (C.demo && C.demoFoglalasok) {
+    let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+    for (let i = 3; i < 70;) { const len = 2 + Math.floor(rnd() * 4); if (rnd() < .45) for (let j = 0; j < len; j++) booked.add(iso(addDays(today, i + j))); i += len + 1 + Math.floor(rnd() * 3); }
+  }
+
+  const ld = { "@context": "https://schema.org", "@type": "LodgingBusiness", name: C.nev + " " + C.alcim, url: C.domain, description: C.seoLeiras,
+    telephone: K.telefon, email: K.email, address: { "@type": "PostalAddress", streetAddress: K.cim2, addressLocality: C.hely, addressCountry: "HU" },
+    amenityFeature: C.kenyelem.map(k => ({ "@type": "LocationFeatureSpecification", name: k[1], value: true })),
+    priceRange: ft(Math.min(...R.map(r => r.alapAr)) * Math.min(...C.szezonok.map(s => s.szorzo))) + "-tól / éj" };
+  const s = document.createElement("script"); s.type = "application/ld+json"; s.textContent = JSON.stringify(ld); document.head.appendChild(s);
+
+  const grad = c => `linear-gradient(150deg, ${c[0]}, ${c[1]})`;
+  const roomG = ["#e8d6bd,#b98a5d", "#cfe0e4,#5f8d99", "#dfe6d2,#869c74"];
+  const html = [];
+
+  /* ===== Hero: SVG táj, amit a napszak színez ===== */
+  const stars = Array.from({ length: 60 }, (_, i) => { const x = (i * 137.5) % 1200, y = (i * 61.3) % 360; return `<circle cx="${x.toFixed(0)}" cy="${y.toFixed(0)}" r="${(i % 3) * 0.5 + 0.6}"/>`; }).join("");
+  html.push(`
+  <section class="hero" id="top">
+    <svg class="scene" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop id="sk1" offset="0"/><stop id="sk2" offset=".75"/></linearGradient>
+        <linearGradient id="lakeG" x1="0" y1="0" x2="0" y2="1"><stop id="lk1" offset="0"/><stop id="lk2" offset="1"/></linearGradient>
+        <radialGradient id="glow"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect class="sky" width="1200" height="800" fill="url(#skyG)"/>
+      <g class="stars" id="stars">${stars}</g>
+      <circle id="sunGlow" r="140" fill="url(#glow)"/>
+      <circle id="sun" r="38"/>
+      <path id="far" d="M0 470 C 150 420, 260 450, 380 430 S 640 380, 780 420 S 1050 400, 1200 430 V 800 H 0 Z"/>
+      <rect id="lake" y="500" width="1200" height="300" fill="url(#lakeG)"/>
+      <path id="sunPath" d="M0 0" stroke-width="10" stroke-linecap="round" opacity=".5"/>
+      <path id="near" d="M0 600 C 140 560, 300 590, 420 570 S 640 540, 760 575 S 1000 600, 1200 560 V 800 H 0 Z"/>
+      <g id="house" transform="translate(860 470)">
+        <path d="M0 70 L60 22 L120 70 V130 H0 Z"/><rect x="120" y="60" width="70" height="70"/><path d="M110 70 L150 40 L200 70"/>
+        <rect class="win" x="22" y="78" width="22" height="22"/><rect class="win" x="70" y="78" width="22" height="22"/><rect class="win" x="140" y="82" width="30" height="20"/>
+      </g>
+      <g id="trees"><path d="M780 600 q 30 -110 60 0 z"/><path d="M1040 590 q 26 -90 52 0 z"/><path d="M120 610 q 36 -130 72 0 z"/><path d="M200 615 q 24 -80 48 0 z"/></g>
+    </svg>
+    <div class="hero-shade"></div>
+    <div class="wrap">
+      <span class="clock" id="clock"></span>
+      <h1>${esc(C.hero.cim).replace(/\*([^*]+)\*/g, "<em>$1</em>")}</h1>
+      <p>${esc(C.hero.szoveg)}</p>
+      ${C.hero.napszakCsuszka ? `<div class="slider"><span>Napszak</span><input type="range" id="tslide" min="0" max="23.99" step="0.05" aria-label="Napszak választó"><button type="button" id="tnow">Most</button></div>` : ""}
+    </div>
+  </section>
+
+  <div class="wrap bookbar">
+    <form id="quick" autocomplete="off">
+      <label>Érkezés<input type="date" id="q-in" min="${iso(today)}"></label>
+      <label>Távozás<input type="date" id="q-out" min="${iso(addDays(today, 1))}"></label>
+      <label>Apartman<select id="q-room">${R.map((r, i) => `<option value="${i}">${esc(r.nev)}</option>`).join("")}</select></label>
+      <label>Vendégek<select id="q-guests">${[1, 2, 3, 4, 5, 6].map(n => `<option${n === 2 ? " selected" : ""}>${n}</option>`).join("")}</select></label>
+      <button class="btn warm" type="submit">Ajánlatot kérek</button>
+    </form>
+    <div class="estimate" id="estimate"></div>
+  </div>`);
+
+  /* ===== Szabad időpontok ===== */
+  const now = today, nowPct = ((now.getMonth() + (now.getDate() - 1) / 31) / 12) * 100;
+  html.push(`
+  <section id="szabad">
+    <div class="wrap">
+      <div class="head rv"><div><span class="kicker">Szabad időpontok</span><h2>Mikor jönnél?</h2></div><p>Kattints az érkezés, majd a távozás napjára – a fenti sávban rögtön látod a becsült árat.</p></div>
+      <div class="season-bar rv">${HO3.map((m, i) => { const sz = seasonOf(new Date(now.getFullYear(), i, 15)); return `<div style="background:${sz.szin}" title="${esc(sz.nev)}">${m}</div>`; }).join("")}<span class="now" style="left:${nowPct}%"></span></div>
+      <div class="legend rv">${C.szezonok.map(s => `<span><i style="background:${s.szin}"></i>${esc(s.nev)} · ${s.szorzo === 1 ? "alapár" : (s.szorzo > 1 ? "+" : "") + Math.round((s.szorzo - 1) * 100) + "%"}</span>`).join("")}<span><i style="background:repeating-linear-gradient(135deg,#fff 0 3px,#d8d0c2 3px 4px)"></i>Foglalt</span></div>
+      <div class="cals rv" id="cals"></div>
+      <p class="cal-note">A naptár tájékoztató jellegű – a foglalást e-mailben visszaigazoljuk.</p>
+    </div>
+  </section>`);
+
+  html.push(`
+  <section id="apartmanok" style="padding-top:20px">
+    <div class="wrap">
+      <div class="head rv"><div><span class="kicker">Apartmanok</span><h2>Válaszd ki a kedvenced</h2></div><p>Minden apartman saját fürdőszobával, konyhával és kertkapcsolattal.</p></div>
+      <div class="rooms">${R.map((r, i) => `
+        <article class="room rv"><div class="ph" style="--g:linear-gradient(150deg,${roomG[i % 3]})">${r.kiemelt ? `<span class="badge">Kedvenc</span>` : ""}</div>
+          <div class="room-body"><h3>${esc(r.nev)}</h3><div class="specs"><span>${esc(r.fo)}</span><span>${esc(r.meret)}</span><span>${esc(r.agy)}</span></div>
+          <ul>${r.extra.map(e => `<li>${esc(e)}</li>`).join("")}</ul>
+          <div class="price"><div><small>már</small> <b>${ft(r.alapAr * Math.min(...C.szezonok.map(s => s.szorzo)))}</b> <small>/ éj</small></div><button type="button" data-room="${i}">Ezt kérem →</button></div></div>
+        </article>`).join("")}
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:20px">
+    <div class="wrap">
+      <div class="head rv"><div><span class="kicker">Kényelem</span><h2>Minden, ami kell</h2></div></div>
+      <div class="amen rv">${C.kenyelem.map(k => `<div><span>${esc(k[0])}</span>${esc(k[1])}</div>`).join("")}</div>
+    </div>
+  </section>
+
+  <section style="padding-top:20px">
+    <div class="wrap">
+      <div class="gallery rv">${C.kepek.map(k => `<figure style="--g:${k.kep ? `url('${esc(k.kep)}')` : grad(k.szinek)}"><figcaption>${esc(k.felirat)}</figcaption></figure>`).join("")}</div>
+    </div>
+  </section>
+
+  <section id="kornyek" style="padding-top:20px">
+    <div class="wrap area">
+      <div class="rv"><span class="kicker">${esc(C.hely)}</span><h2>${esc(C.kornyek.cim)}</h2></div>
+      <ol class="rv">${C.kornyek.elemek.map(e => `<li><div><b>${esc(e.nev)}</b><span>${esc(e.leiras)}</span></div><i>${esc(e.tav)}</i></li>`).join("")}</ol>
+    </div>
+  </section>`);
+
+  if (on(C.velemenyek)) html.push(`
+  <section style="padding-top:20px">
+    <div class="wrap">
+      <div class="head rv"><div><span class="kicker">Vendégeink</span><h2>Ezt írták rólunk</h2></div></div>
+      <div class="reviews">${C.velemenyek.elemek.map(v => `<figure class="review rv"><blockquote>„${esc(v.szoveg)}”</blockquote><cite><b>${esc(v.pont)}</b>${esc(v.nev)}</cite></figure>`).join("")}</div>
+    </div>
+  </section>`);
+
+  html.push(`
+  <section class="contact" id="ajanlat">
+    <div class="wrap contact-grid">
+      <div class="rv">
+        <span class="kicker">Közvetlen foglalás</span>
+        <h2>${esc(K.cim)}</h2>
+        <p class="lead">${esc(K.szoveg)}</p>
+        <ul class="info">
+          ${K.telefon ? `<li><small>Telefon</small><a href="tel:${esc(K.telefon.replace(/\s/g, ""))}">${esc(K.telefon)}</a></li>` : ""}
+          ${K.email ? `<li><small>E-mail</small><a href="mailto:${esc(K.email)}">${esc(K.email)}</a></li>` : ""}
+          ${K.cim2 ? `<li><small>Cím</small>${K.terkepLink ? `<a href="${esc(K.terkepLink)}" target="_blank" rel="noopener">${esc(K.cim2)}</a>` : esc(K.cim2)}</li>` : ""}
+          <li><small>NTAK regisztrációs szám</small>${esc(C.ntak)}</li>
+        </ul>
+      </div>
+      <form class="req rv" id="form" action="https://api.web3forms.com/submit" method="POST">
+        <input type="hidden" name="access_key" value="${esc(K.web3formsKulcs)}">
+        <input type="hidden" name="subject" value="${esc(K.urlapTargy + " – " + C.nev)}">
+        <input type="hidden" name="from_name" value="${esc(C.nev + " weboldal")}">
+        <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off">
+        <div class="row2">
+          <label>Érkezés *<input type="date" name="Érkezés" id="f-in" required></label>
+          <label>Távozás *<input type="date" name="Távozás" id="f-out" required></label>
+        </div>
+        <div class="row2">
+          <label>Apartman<select name="Apartman" id="f-room">${R.map(r => `<option>${esc(r.nev)}</option>`).join("")}<option>Mindegy</option></select></label>
+          <label>Vendégek száma<input type="number" name="Vendégek" id="f-guests" min="1" max="12" value="2"></label>
+        </div>
+        <div class="row2">
+          <label>Név *<input type="text" name="Név" required autocomplete="name"></label>
+          <label>E-mail *<input type="email" name="email" required autocomplete="email"></label>
+        </div>
+        <label>Telefon<input type="tel" name="Telefon" autocomplete="tel"></label>
+        <input type="hidden" name="Becsült ár" id="f-est">
+        <label>Üzenet<textarea name="Üzenet" placeholder="pl. gyerekek életkora, kisállat, érkezés időpontja…"></textarea></label>
+        <label class="consent"><input type="checkbox" required> Hozzájárulok, hogy adataimat az ajánlatkérés céljából kezeljék.</label>
+        <div><button class="btn" id="send" type="submit">Ajánlatkérés küldése</button></div>
+        <div class="msg" id="msg" role="status"></div>
+      </form>
+    </div>
+  </section>`);
+
+  document.getElementById("app").innerHTML = html.join("");
+  document.getElementById("links").innerHTML = `<a href="#szabad">Szabad időpontok</a><a href="#apartmanok">Apartmanok</a><a href="#kornyek">Környék</a><a class="btn" href="#ajanlat">Ajánlatkérés</a>`;
+
+  /* ===== Napszak-jelenet ===== */
+  const KEYS = [   // óra, ég fent, ég lent, tó fent, tó lent, távoli domb, közeli domb, ház/fák, nap/hold színe, ablakfény
+    [0,  "#0b1630", "#1d2c52", "#162444", "#0a1226", "#1a2742", "#101a2e", "#0b1222", "#e9eef7", "#ffcf7a"],
+    [5,  "#1f2d55", "#c47b7b", "#4d5a7a", "#1e2a44", "#3a3f5e", "#252c43", "#191e30", "#ffd9a0", "#ffcf7a"],
+    [7,  "#7fb0d6", "#f6c89a", "#8db4c9", "#3e6d84", "#6f8aa0", "#4c6a58", "#2f3f35", "#fff1c9", "#00000000"],
+    [12, "#5aa0d8", "#cfe7f5", "#5f9fc0", "#2f6b88", "#7d9db3", "#5d8a5f", "#3c5a3d", "#fffbe6", "#00000000"],
+    [17, "#6c9cc7", "#f3d4a4", "#7aa3b8", "#3b6b80", "#7f8ea0", "#5a7a52", "#3b4c34", "#ffe6a8", "#00000000"],
+    [19.5, "#2e3b6e", "#f08a4b", "#b5714e", "#3a3a5a", "#5a4a63", "#3a3446", "#241f2c", "#ff9a4d", "#ffcf7a"],
+    [21, "#121e40", "#4a3f6e", "#2b3558", "#111a33", "#2a2f4c", "#191f34", "#10141f", "#f3f0e6", "#ffcf7a"],
+    [24, "#0b1630", "#1d2c52", "#162444", "#0a1226", "#1a2742", "#101a2e", "#0b1222", "#e9eef7", "#ffcf7a"]
+  ];
+  const hx = h => { h = h.replace("#", ""); const a = h.length === 8 ? parseInt(h.slice(6), 16) / 255 : 1; return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16), a]; };
+  const mix = (a, b, t) => { const A = hx(a), B = hx(b); const c = A.map((v, i) => v + (B[i] - v) * t); return `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${c[3].toFixed(2)})`; };
+  const $ = id => document.getElementById(id);
+  function paint(h) {
+    let i = 0; while (i < KEYS.length - 1 && KEYS[i + 1][0] <= h) i++;
+    const A = KEYS[i], B = KEYS[Math.min(i + 1, KEYS.length - 1)], t = B[0] === A[0] ? 0 : (h - A[0]) / (B[0] - A[0]);
+    const c = k => mix(A[k], B[k], t);
+    $("sk1").setAttribute("stop-color", c(1)); $("sk2").setAttribute("stop-color", c(2));
+    $("lk1").setAttribute("stop-color", c(3)); $("lk2").setAttribute("stop-color", c(4));
+    $("far").setAttribute("fill", c(5)); $("near").setAttribute("fill", c(6));
+    $("house").setAttribute("fill", c(7)); $("trees").setAttribute("fill", c(7));
+    document.querySelectorAll(".win").forEach(w => w.setAttribute("fill", c(9) === "rgba(0,0,0,0.00)" ? c(7) : c(9)));
+    // nap nappal (6–20), hold éjjel – íven mozog
+    const day = h >= 6 && h <= 20.5, p = day ? (h - 6) / 14.5 : ((h < 6 ? h + 24 : h) - 20.5) / 9.5;
+    const x = 120 + p * 960, y = 470 - Math.sin(p * Math.PI) * 360;
+    $("sun").setAttribute("cx", x); $("sun").setAttribute("cy", y); $("sun").setAttribute("fill", c(8));
+    $("sunGlow").setAttribute("cx", x); $("sunGlow").setAttribute("cy", y); $("sunGlow").setAttribute("opacity", day ? .55 : .18);
+    $("sunPath").setAttribute("d", y > 300 && y < 500 ? `M${x - 30} 540 L${x + 30} 540 M${x - 18} 568 L${x + 18} 568 M${x - 8} 600 L${x + 8} 600` : "M0 0");
+    $("sunPath").setAttribute("stroke", c(8));
+    const night = h < 5.5 || h > 20.5 ? 1 : (h < 7 ? (7 - h) / 1.5 : (h > 19 ? (h - 19) / 1.5 : 0));
+    $("stars").setAttribute("opacity", Math.max(0, Math.min(1, night)).toFixed(2));
+    const hh = Math.floor(h), mm = Math.floor((h - hh) * 60);
+    const label = h < 5 ? "éjszaka ☾" : h < 9 ? "reggel ☀" : h < 17 ? "napközben ☀" : h < 21 ? "naplemente ◐" : "este ☾";
+    $("clock").textContent = `Most ${C.hely}: ${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")} · ${label}`;
+  }
+  const nowH = () => { const d = new Date(); return d.getHours() + d.getMinutes() / 60; };
+  let manual = false; paint(nowH());
+  const sl = $("tslide");
+  if (sl) {
+    sl.value = nowH();
+    sl.addEventListener("input", () => { manual = true; paint(+sl.value); $("clock").textContent = $("clock").textContent.replace(/^Most/, "Így néz ki"); });
+    $("tnow").onclick = () => { manual = false; sl.value = nowH(); paint(nowH()); };
+  }
+  setInterval(() => { if (!manual) { paint(nowH()); if (sl) sl.value = nowH(); } }, 60000);
+  // Demó: ha nem nyúlnak hozzá, egyszer lassan "végigmegy" a napon, hogy látszódjon a hatás
+  if (C.demo && sl && !reduce) {
+    let t0 = null; const start = nowH();
+    const tour = ts => { if (manual) return; if (!t0) t0 = ts; const p = Math.min(1, (ts - t0) / 9000), h = (start + p * 24) % 24; paint(h); sl.value = h; if (p < 1) requestAnimationFrame(tour); else paint(nowH()); };
+    setTimeout(() => requestAnimationFrame(tour), 1800);
+  }
+
+  /* ===== Fejléc ragadóssá válik ===== */
+  const hdr = $("hdr"), hero = $("top");
+  addEventListener("scroll", () => hdr.classList.toggle("stick", scrollY > hero.offsetHeight - 90), { passive: true });
+
+  /* ===== Naptár + ár becslés ===== */
+  let viewMonth = new Date(today.getFullYear(), today.getMonth(), 1), selIn = null, selOut = null;
+  const qIn = $("q-in"), qOut = $("q-out"), qRoom = $("q-room"), qG = $("q-guests"), est = $("estimate");
+  function rangeHasBooked(a, b) { for (let d = a; d < b; d = addDays(d, 1)) if (booked.has(iso(d))) return true; return false; }
+  function estimate() {
+    const a = qIn.value && parse(qIn.value), b = qOut.value && parse(qOut.value), r = R[+qRoom.value];
+    if (!a || !b || b <= a) { est.innerHTML = `<span>Válassz dátumot – kiszámoljuk a becsült árat.</span><span>Minimum ${C.minEj} éj</span>`; $("f-est").value = ""; return; }
+    let n = 0, sum = 0; const used = new Set();
+    for (let d = a; d < b; d = addDays(d, 1)) { const sz = seasonOf(d); n++; sum += r.alapAr * sz.szorzo; used.add(sz.nev); }
+    const warn = n < C.minEj ? `<span class="warn">Legalább ${C.minEj} éjszakára foglalható.</span>` : rangeHasBooked(a, b) ? `<span class="warn">A választott időszakban van foglalt nap.</span>` : `<span>${[...used].join(", ")}</span>`;
+    est.innerHTML = `<span>${n} éj · ${esc(r.nev)} · ${qG.value} fő</span>${warn}<span>Becsült ár: <b>${ft(sum)}</b></span>`;
+    $("f-est").value = ft(sum) + " (" + n + " éj)";
+  }
+  function renderCals() {
+    const box = $("cals"); box.innerHTML = "";
+    for (let k = 0; k < 2; k++) {
+      const m = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + k, 1), first = (m.getDay() + 6) % 7, days = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
+      let cells = ["H", "K", "Sz", "Cs", "P", "Sz", "V"].map(d => `<div class="dn">${d}</div>`).join("") + "<div></div>".repeat(first);
+      for (let d = 1; d <= days; d++) {
+        const dt = new Date(m.getFullYear(), m.getMonth(), d), id = iso(dt), past = dt < today, bk = booked.has(id);
+        const cls = ["day", past && "past", bk && "booked", +dt === +today && "today",
+          selIn && +dt === +selIn && "sel", selOut && +dt === +selOut && "sel", selIn && selOut && dt > selIn && dt < selOut && "inrange"].filter(Boolean).join(" ");
+        cells += `<button type="button" class="${cls}" data-d="${id}" style="--sc:${past ? "transparent" : seasonOf(dt).szin}" ${past || bk ? "disabled" : ""} aria-label="${id}${bk ? " foglalt" : ""}">${d}</button>`;
+      }
+      box.insertAdjacentHTML("beforeend", `<div class="cal"><div class="cal-head">${k === 0 ? `<button type="button" data-nav="-1" aria-label="Előző hónap">←</button>` : "<span></span>"}<h3>${m.getFullYear()}. ${HONAP[m.getMonth()]}</h3>${k === 1 ? `<button type="button" data-nav="1" aria-label="Következő hónap">→</button>` : "<span></span>"}</div><div class="grid7">${cells}</div></div>`);
+    }
+  }
+  $("cals").addEventListener("click", e => {
+    const nv = e.target.closest("[data-nav]");
+    if (nv) { const n = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + +nv.dataset.nav, 1); if (n >= new Date(today.getFullYear(), today.getMonth(), 1)) { viewMonth = n; renderCals(); } return; }
+    const b = e.target.closest("[data-d]"); if (!b || b.disabled) return;
+    const d = parse(b.dataset.d);
+    if (!selIn || selOut || d <= selIn) { selIn = d; selOut = null; } else { selOut = d; }
+    qIn.value = selIn ? iso(selIn) : ""; qOut.value = selOut ? iso(selOut) : "";
+    renderCals(); estimate();
+    if (selIn && selOut) $("estimate").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+  });
+  [qIn, qOut].forEach(i => i.addEventListener("change", () => {
+    selIn = qIn.value ? parse(qIn.value) : null; selOut = qOut.value ? parse(qOut.value) : null;
+    if (selIn) { viewMonth = new Date(selIn.getFullYear(), selIn.getMonth(), 1); qOut.min = iso(addDays(selIn, 1)); }
+    renderCals(); estimate();
+  }));
+  [qRoom, qG].forEach(i => i.addEventListener("change", estimate));
+  renderCals(); estimate();
+
+  /* ===== Gyorsfoglaló / szobaválasztás → részletes űrlap ===== */
+  function toForm() {
+    $("f-in").value = qIn.value; $("f-out").value = qOut.value;
+    $("f-room").selectedIndex = +qRoom.value; $("f-guests").value = qG.value;
+    $("ajanlat").scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
+  }
+  $("quick").addEventListener("submit", e => { e.preventDefault(); toForm(); });
+  document.addEventListener("click", e => { const b = e.target.closest("[data-room]"); if (b) { qRoom.value = b.dataset.room; estimate(); toForm(); } });
+
+  /* ===== Beúszás ===== */
+  const els = document.querySelectorAll(".rv");
+  if ("IntersectionObserver" in window && !reduce) {
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: 0.12 });
+    els.forEach(el => io.observe(el));
+  } else els.forEach(el => el.classList.add("in"));
+
+  /* ===== Űrlap (Web3Forms) ===== */
+  $("form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const f = e.target, b = $("send"), m = $("msg");
+    b.disabled = true; m.className = "msg";
+    try {
+      const fd = new FormData(f); fd.set("replyto", fd.get("email") || "");
+      const r = await fetch(f.action, { method: "POST", headers: { Accept: "application/json" }, body: fd });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok || !d.success) throw new Error(d.message || "HTTP " + r.status);
+      f.reset(); m.className = "msg ok"; m.textContent = "Köszönjük! 24 órán belül jelentkezünk az ajánlattal.";
+    } catch (err) {
+      m.className = "msg err"; m.textContent = "Hiba történt a küldés közben. Kérjük, próbáld újra, vagy hívj minket.";
+    } finally { b.disabled = false; }
+  });
+})();
+</script>
+</body>
+</html>
